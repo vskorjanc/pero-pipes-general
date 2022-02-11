@@ -26,7 +26,7 @@ offset = open_row_file('calib/darkAsRow.txt')
 calib = open_row_file('calib/calibSplitterStellar_pro_asRow.txt')
 
 # %%
-thot = ThotProject(dev_root='../../temp/PL_test')
+thot = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')
 assets = thot.find_assets({"type": "PL_spectrum"})
 
 # %% [markdown]

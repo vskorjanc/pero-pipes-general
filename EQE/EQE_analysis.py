@@ -25,7 +25,7 @@ am.head()
 # ## Import measured data
 
 # %%
-thot = ThotProject(dev_root='../../../evap_pero/data/2021-11-16/EQE')
+thot = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
 asset = thot.find_asset({'type': 'EQE_df'})
 
 # %%

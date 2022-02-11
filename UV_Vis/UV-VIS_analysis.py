@@ -5,7 +5,7 @@ from plotly import express as px
 from thot import ThotProject
 
 # %%
-thot = ThotProject(dev_root='../../../evap_pero/data/2021-12-15/UV_VIS')
+thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
 asset = thot.find_asset({'type': 'UV-VIS_df'})
 
 # %%

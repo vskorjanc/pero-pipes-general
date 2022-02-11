@@ -36,7 +36,7 @@ from thot import ThotProject
 from plotly import express as px
 
 # %%
-thot = ThotProject(dev_root='../../../evap_pero/temp/PL_test')
+thot = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')
 asset = thot.find_asset({'type': 'PL_df'})
 
 # %%

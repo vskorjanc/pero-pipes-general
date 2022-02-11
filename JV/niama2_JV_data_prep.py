@@ -8,7 +8,7 @@ from bix_analysis_libraries import bix_standard_functions as bsf
 # ## Data import
 
 # %%
-thot = ThotProject(dev_root='../../evap_pero/data/2021-12-06_1/JV_map')
+thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-06_1/JV_map')
 data = thot.find_assets({'type': 'JV_scan'})
 
 # %%

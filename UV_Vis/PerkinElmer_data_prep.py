@@ -8,7 +8,7 @@ from bix_analysis_libraries import bix_standard_functions as bsf
 from bric_analysis_libraries.pl import pl_data_prep as pdp
 
 # %%
-thot = ThotProject(dev_root='../../../evap_pero/data/2021-12-15/UV_VIS')
+thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
 reflection = thot.find_assets({'type': 'reflection_spectrum'})
 transmission = thot.find_assets({'type': 'transmission_spectrum'})
 
