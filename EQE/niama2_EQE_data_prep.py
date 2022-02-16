@@ -2,12 +2,13 @@
 import pandas as pd
 from thot import ThotProject
 
+from bix_analysis_libraries import thot as bt
 from bric_analysis_libraries.pl import pl_data_prep as pdp
 from bix_analysis_libraries import bix_standard_functions as bsf
 
 # %%
 thot = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
-assets = thot.find_assets({'type': 'EQE_spectrum'})
+assets = bt.find_raw_assets(thot)
 
 # %%
 df = []

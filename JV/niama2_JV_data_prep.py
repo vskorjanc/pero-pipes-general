@@ -1,6 +1,7 @@
 # %%
 import pandas as pd
 
+from bix_analysis_libraries import thot as bt
 from thot import ThotProject
 from bix_analysis_libraries import bix_standard_functions as bsf
 
@@ -9,7 +10,7 @@ from bix_analysis_libraries import bix_standard_functions as bsf
 
 # %%
 thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-06_1/JV_map')
-data = thot.find_assets({'type': 'JV_scan'})
+data = bt.find_raw_assets(thot)
 
 # %%
 dfs = []

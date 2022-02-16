@@ -3,14 +3,16 @@
 
 # %%
 import pandas as pd
+
 from thot import ThotProject
+from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries import bix_standard_functions as bsf
 from bric_analysis_libraries.pl import pl_data_prep as pdp
 
 # %%
 thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
-reflection = thot.find_assets({'type': 'reflection_spectrum'})
-transmission = thot.find_assets({'type': 'transmission_spectrum'})
+reflection = bt.find_raw_assets(thot)
+transmission = bt.find_raw_assets(thot)
 
 # %%
 data = []

@@ -9,6 +9,7 @@ import pandas as pd
 import re
 import os.path
 
+from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries.pl import pl_data_prep as bplp
 from thot import ThotProject
@@ -27,7 +28,7 @@ calib = open_row_file('calib/calibSplitterStellar_pro_asRow.txt')
 
 # %%
 thot = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')
-assets = thot.find_assets({"type": "PL_spectrum"})
+assets = bt.find_raw_assets(thot)
 
 # %% [markdown]
 # ## Data import
