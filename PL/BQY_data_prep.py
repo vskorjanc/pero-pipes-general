@@ -26,26 +26,20 @@ def import_file(file):
     return df
 
 
-def open_row_file(file):
-    with open(file, 'r') as f:
-        return eval(f.readline())
-
-
-# %%
-# opening calibration and dark offset curves
-offset = open_row_file('calib/darkAsRow.txt')
-calib = open_row_file('calib/calibSplitterStellar_pro_asRow.txt')
-
 # %% [markdown]
 # ## Data import
 
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')
-df = ppdp.import_raw_data(thot, import_file)
+db = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')
+df = ppdp.import_raw_data(db, import_file)
 df.head()
 
 # %%
-flux_df = bplp.calc_photon_flux(df, calib, offset, area=0.000012)
+calib = db.find_asset({'type': 'BQY_calib_df'})
+calib = pd.read_pickle(calib.file)
+calib.head()
+# %%
+flux_df = bplp.calc_photon_flux(df, calib, area=0.000012)
 flux_df = bplp.df_to_energy(flux_df)
 flux_df = flux_df.rename(
     columns={'counts/s': 'flux [photons/(m2 s eV)]'},
@@ -59,5 +53,5 @@ props = {
     'type': 'PL_df',
     'tags': ['PL', 'df']
 }
-asset_path = thot.add_asset(props, 'PL_df')
+asset_path = db.add_asset(props, 'PL_df')
 pd.to_pickle(flux_df, asset_path, protocol=4)
