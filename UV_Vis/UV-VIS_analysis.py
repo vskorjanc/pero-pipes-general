@@ -10,8 +10,10 @@ asset = thot.find_asset({'type': 'UV-VIS_df'})
 
 # %%
 df = pd.read_pickle(asset.file)
+df.columns = df.columns.droplevel(['pixel', 'date'])
 df = df.stack('substrate')
 df.head()
+
 
 # %%
 df['1-R'] = 1 - df['reflectance']

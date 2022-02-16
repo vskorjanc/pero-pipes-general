@@ -9,17 +9,18 @@ from bix_analysis_libraries import bix_standard_functions as bsf
 # ## Data import
 
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-06_1/JV_map')
-data = bt.find_raw_assets(thot)
+thot = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/JV')
+assets = bt.find_raw_assets(thot)
 
 # %%
 dfs = []
-for datum in data:
-    df = pd.read_csv(datum.file, index_col=0, delimiter='\t',
+for asset in assets:
+    df = pd.read_csv(asset.file, index_col=0, delimiter='\t',
                      header=8, nrows=9, usecols=range(13),  encoding='ISO-8859-15')
     df.columns = pd.MultiIndex.from_product(
         [['a', 'b', 'c', 'd', 'e', 'f'], ['for', 'rev']], names=['pixel', 'direction'])
-    df = bsf.add_level(df, datum.name, 'substrate', axis=1)
+    substrate = bsf.get_substrate_name(asset.file)[0]
+    df = bsf.add_level(df, substrate, 'substrate', axis=1)
     dfs.append(df)
 df = pd.concat(dfs, axis=1)
 df.head()

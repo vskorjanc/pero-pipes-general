@@ -2,37 +2,35 @@
 import pandas as pd
 from thot import ThotProject
 
-from bix_analysis_libraries import thot as bt
+from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bric_analysis_libraries.pl import pl_data_prep as pdp
-from bix_analysis_libraries import bix_standard_functions as bsf
 
+# %% [markdown]
+# Functions
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
-assets = bt.find_raw_assets(thot)
 
-# %%
-df = []
-for asset in assets:
-    match = bsf.metadata_from_file_name(
-        asset.file, '(.+)_([a-f])', as_list=True)
-    data = pd.read_csv(
-        asset.file,
+
+def import_file(file):
+    df = pd.read_csv(
+        file,
         sep='\t',
         skiprows=range(10),
         names=['wavelength/nm', 'measured', 'EQE'],
         usecols=['wavelength/nm', 'EQE'],
         index_col=0
     )
-    data = bsf.add_levels(data, match, names=['substrate', 'pixel'], axis=1)
-    df.append(data)
-df = pd.concat(df, axis=1)
+    return df
+
+
+# %%
+thot = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
+df = ppdp.import_raw_data(thot, import_file)
 df = df.apply(lambda x: x / 100)
 df.head()
 
 
 # %%
 e_df = pdp.index_to_energy(df).sort_index()
-e_df.columns.names = ['substrate', 'pixel', 'param']
 e_df.index.name = 'energy/eV'
 e_df.head()
 

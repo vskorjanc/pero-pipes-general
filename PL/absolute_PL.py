@@ -42,8 +42,8 @@ asset = thot.find_asset({'type': 'PL_df'})
 # %%
 df = pd.read_pickle(asset.file)
 # take reference as a separate variable
-ref = df['ref']
-df = df.drop('ref', axis=1)
+ref = df['white']
+df = df.drop('white', axis=1)
 df.columns = df.columns.droplevel('param')
 df.head()
 

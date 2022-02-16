@@ -1,35 +1,32 @@
-# %% [markdown]
-# TODO import full stack data separately (e.g. VikA01_a)
-
 # %%
 import pandas as pd
 
 from thot import ThotProject
-from bix_analysis_libraries import thot as bt
-from bix_analysis_libraries import bix_standard_functions as bsf
 from bric_analysis_libraries.pl import pl_data_prep as pdp
+from bix_analysis_libraries.pero_pipes import data_prep as ppdp
+
+# %% [markdown]
+# Functions
+# %%
+
+
+def import_file(file):
+    df = pd.read_csv(
+        file,
+        sep=';',
+        index_col=0,
+        decimal=','
+    )
+    return df
+
 
 # %%
 thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
-reflection = bt.find_raw_assets(thot)
-transmission = bt.find_raw_assets(thot)
-
-# %%
-data = []
-for asset in [*reflection, *transmission]:
-    substrate = bsf.metadata_from_file_name(
-        asset.file,
-        r'(.+)\.Probe\.Rohdaten'
-    ).group(1)
-    datum = pd.read_csv(asset.file, sep=';', index_col=0, decimal=',')
-    datum = bsf.add_level(datum, substrate, 'substrate', axis=1)
-    data.append(datum)
-df = pd.concat(data, axis=1)
+df = ppdp.import_raw_data(thot, import_file)
 df.head()
 
 # %%
 e_df = pdp.index_to_energy(df)
-e_df.columns.names = ['substrate', 'param']
 e_df.index.name = 'energy/eV'
 e_df = e_df.rename(
     columns={
