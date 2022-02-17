@@ -29,7 +29,7 @@ def import_file(file):
 
 
 # %%
-db = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')
+db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/PL')
 df = ppdp.import_raw_data(db, import_file)
 df.head()
 
