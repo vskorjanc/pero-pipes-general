@@ -19,22 +19,46 @@
 # ## Imports
 
 # %%
-from importlib import reload
-from bric_analysis_libraries import standard_functions as std
-from matplotlib import pyplot as plt
-from scipy.signal import peak_widths
 from scipy.signal import find_peaks
+from scipy.signal import peak_widths
+from matplotlib import pyplot as plt
 import pandas as pd
 import sys
 
 from bric_analysis_libraries.pl import pl_analysis as pla
-
+from bric_analysis_libraries import standard_functions as std
 from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries.pl import pl_analysis as bpa
+from bix_analysis_libraries.thot import export_asset
+from bix_analysis_libraries.plotly import export_plotly
 
 from thot import ThotProject
 
 from plotly import express as px
+
+# %% [markdown]
+# Functions
+# %%
+
+
+def plot_PL(data):
+    pdf = data.copy()
+    pdf.columns = pdf.columns.get_level_values('pixel')
+    y_max = pdf.loc[1.5:1.9].max().values[0]
+    range_y = (-0.1 * y_max, 1.1 * y_max)
+    fig = px.line(
+        pdf,
+        range_x=(1.5, 1.9),
+        range_y=range_y,
+        labels={
+            'energy': 'energy / eV',
+            'value': 'photon flux / (m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>)',
+            'color': 'pixel',
+        },
+        title=sub
+    )
+    return fig
+
 
 # %%
 db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/PL')
@@ -53,32 +77,8 @@ df.head()
 
 # %%
 for sub, data in df.groupby('substrate', axis=1):
-    pdf = data.copy()
-    pdf.columns = pdf.columns.get_level_values('pixel')
-    y_max = pdf.loc[1.5:1.9].max().values[0]
-    range_y = (-0.1 * y_max, 1.1 * y_max)
-    # print()
-    fig = px.line(
-        pdf,
-        range_x=(1.5, 1.9),
-        range_y=range_y,
-        labels={
-            'energy': 'energy / eV',
-            'value': 'photon flux / (m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>)',
-            'color': 'pixel',
-        },
-        title=sub
-    )
-    props = {
-        'file': f'PL_plot_{sub}.html',
-        'type': 'PL_plot',
-        'tags': ['PL', 'plot']
-    }
-
-    asset_path = db.add_asset(props, f'PL_plot_{sub}')
-    fig.write_html(asset_path, include_plotlyjs='cdn')
-
-fig.show()
+    fig = plot_PL(data)
+    export_asset(f'PL_plot_{sub}.html', db, export_plotly, fig, 'PL_plot')
 # %% [markdown]
 # ## Calculation
 
@@ -87,17 +87,22 @@ excitation_range = (2.3, 2.36)
 emission_range = (1.5, 1.9)
 
 # %%
-reload(bpa)
-# %%
 dfs = []
 fits = {}
 for name, data in df.groupby(axis=1, level=df.columns.names):
     fit = bpa.high_energy_tail_fit(data, 0.015, *emission_range)
     fits[name] = fit
 
+    sub = data.columns.get_level_values('substrate')[0]
+    pix = data.columns.get_level_values('pixel')[0]
     fig = bpa.plot_hetf(data, fit, *emission_range)
-    fig.show()
-    break
+    export_asset(
+        f'HETF_plot_{sub}_{pix}.html',
+        db,
+        export_plotly,
+        fig,
+        'HETF_plot'
+    )
 
 fits = pd.concat(fits, names=df.columns.names)
 fits.index = fits.index.droplevel('energy')
@@ -130,6 +135,7 @@ fits.to_csv(bsf.change_extension(asset_path, 'csv'))
 # %%
 sys.exit()
 
+# %%
 # %% [markdown]
 # ---
 
