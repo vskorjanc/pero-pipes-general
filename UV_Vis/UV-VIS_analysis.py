@@ -5,8 +5,8 @@ from plotly import express as px
 from thot import ThotProject
 
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
-asset = thot.find_asset({'type': 'UV-VIS_df'})
+db = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
+asset = db.find_asset({'type': 'UV-VIS_df'})
 
 # %%
 df = pd.read_pickle(asset.file)
@@ -36,5 +36,5 @@ for sub, data in df.groupby('substrate'):
         'type': 'R-T_plot',
         'tags': ['UV-VIS', 'R-T', 'plot']
     }
-    asset_path = thot.add_asset(props, f'R-T_plot_{sub}')
+    asset_path = db.add_asset(props, f'R-T_plot_{sub}')
     fig.write_html(asset_path, include_plotlyjs='cdn')

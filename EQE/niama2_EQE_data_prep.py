@@ -23,8 +23,8 @@ def import_file(file):
 
 
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
-df = ppdp.import_raw_data(thot, import_file)
+db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
+df = ppdp.import_raw_data(db, import_file)
 df = df.apply(lambda x: x / 100)
 df.head()
 
@@ -40,5 +40,5 @@ props = {
     'type': 'EQE_df',
     'tags': ['EQE', 'df']
 }
-asset_path = thot.add_asset(props, 'EQE_df')
+asset_path = db.add_asset(props, 'EQE_df')
 pd.to_pickle(e_df, asset_path, protocol=4)

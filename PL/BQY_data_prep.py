@@ -24,10 +24,9 @@ def import_file(file):
             'wavelength', 'counts/s'], index_col=0)
     df['counts/s'] = df['counts/s'] * 1000 / int_time
     return df
-
-
 # %% [markdown]
 # ## Data import
+
 
 # %%
 db = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')

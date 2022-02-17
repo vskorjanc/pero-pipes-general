@@ -36,8 +36,8 @@ from thot import ThotProject
 from plotly import express as px
 
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')
-asset = thot.find_asset({'type': 'PL_df'})
+db = ThotProject(dev_root='../../../../evap_pero/temp/PL_test')
+asset = db.find_asset({'type': 'PL_df'})
 
 # %%
 df = pd.read_pickle(asset.file)
@@ -84,7 +84,7 @@ props = {
     'type': 'PL_metrics',
     'tags': ['PL', 'metrics']
 }
-asset_path = thot.add_asset(props, 'PL_metrics')
+asset_path = db.add_asset(props, 'PL_metrics')
 pd.to_pickle(metrics, asset_path)
 fits.to_csv(bsf.change_extension(asset_path, 'csv'))
 
@@ -121,7 +121,7 @@ for sub, data in df.groupby('substrate', axis=1):
         'tags': ['PL', 'plot']
     }
 
-    asset_path = thot.add_asset(props, f'PL_plot_{sub}')
+    asset_path = db.add_asset(props, f'PL_plot_{sub}')
     fig.write_html(asset_path, include_plotlyjs='cdn')
 
 fig.show()

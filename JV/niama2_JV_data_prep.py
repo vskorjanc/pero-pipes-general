@@ -4,13 +4,13 @@ import pandas as pd
 from bix_analysis_libraries import thot as bt
 from thot import ThotProject
 from bix_analysis_libraries import bix_standard_functions as bsf
-
+from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 # %% [markdown]
 # ## Data import
 
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/JV')
-assets = bt.find_raw_assets(thot)
+db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/JV')
+assets = bt.find_assets(db)
 
 # %%
 dfs = []
@@ -19,7 +19,7 @@ for asset in assets:
                      header=8, nrows=9, usecols=range(13),  encoding='ISO-8859-15')
     df.columns = pd.MultiIndex.from_product(
         [['a', 'b', 'c', 'd', 'e', 'f'], ['for', 'rev']], names=['pixel', 'direction'])
-    substrate = bsf.get_substrate_name(asset.file)[0]
+    substrate = ppdp.get_substrate_name(asset.file)[0]
     df = bsf.add_level(df, substrate, 'substrate', axis=1)
     dfs.append(df)
 df = pd.concat(dfs, axis=1)
@@ -54,5 +54,5 @@ props = {
     'type': 'JV_metrics',
     'tags': ['JV', 'metrics']
 }
-asset_path = thot.add_asset(props, 'JV_metrics')
+asset_path = db.add_asset(props, 'JV_metrics')
 pd.to_pickle(df_mean, asset_path)

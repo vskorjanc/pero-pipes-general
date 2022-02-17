@@ -21,8 +21,8 @@ def import_file(file):
 
 
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
-df = ppdp.import_raw_data(thot, import_file)
+db = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
+df = ppdp.import_raw_data(db, import_file)
 df.head()
 
 # %%
@@ -45,5 +45,5 @@ props = {
     'type': 'UV-VIS_df',
     'tags': ['UV-VIS', 'df']
 }
-asset_path = thot.add_asset(props, 'UV-VIS_df')
+asset_path = db.add_asset(props, 'UV-VIS_df')
 pd.to_pickle(e_df, asset_path, protocol=4)

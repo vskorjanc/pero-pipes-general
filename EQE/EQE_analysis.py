@@ -25,8 +25,8 @@ am.head()
 # ## Import measured data
 
 # %%
-thot = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
-asset = thot.find_asset({'type': 'EQE_df'})
+db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
+asset = db.find_asset({'type': 'EQE_df'})
 
 # %%
 df = pd.read_pickle(asset.file)
@@ -110,7 +110,7 @@ props = {
     'type': 'EQE_metrics',
     'tags': ['EQE', 'metrics']
 }
-asset_path = thot.add_asset(props, 'EQE_metrics')
+asset_path = db.add_asset(props, 'EQE_metrics')
 pd.to_pickle(metrics, asset_path)
 fits.to_csv(bsf.change_extension(asset_path, 'csv'))
 
@@ -162,5 +162,5 @@ for name, data in plot_df.groupby(['substrate', 'pixel'], axis=1):
         'type': 'EQE_plot',
         'tags': ['EQE', 'plot']
     }
-    asset_path = thot.add_asset(props, f'EQE_plot_{title}')
+    asset_path = db.add_asset(props, f'EQE_plot_{title}')
     fig.write_html(asset_path, include_plotlyjs='cdn')
