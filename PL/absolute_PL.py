@@ -19,6 +19,7 @@
 # ## Imports
 
 # %%
+from importlib import reload
 from bric_analysis_libraries import standard_functions as std
 from matplotlib import pyplot as plt
 from scipy.signal import peak_widths
@@ -91,11 +92,17 @@ excitation_range = (2.3, 2.36)
 emission_range = (1.5, 1.9)
 
 # %%
+reload(bpa)
+# %%
 dfs = []
 fits = {}
 for name, data in df.groupby(axis=1, level=df.columns.names):
     fit = bpa.high_energy_tail_fit(data, 0.015, *emission_range)
     fits[name] = fit
+
+    fig = bpa.plot_hetf(data, fit, *emission_range)
+    fig.show()
+    break
 
 fits = pd.concat(fits, names=df.columns.names)
 fits.index = fits.index.droplevel('energy')
