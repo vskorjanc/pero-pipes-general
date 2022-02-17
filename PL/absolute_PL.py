@@ -48,6 +48,42 @@ df.columns = df.columns.droplevel('param')
 df.head()
 
 # %% [markdown]
+# ## PL plot
+
+# %%
+for sub, data in df.groupby('substrate', axis=1):
+    pdf = data.copy()
+    pdf = pdf.stack('pixel')
+    x = pdf.index.get_level_values('energy')
+    color = pdf.index.get_level_values('pixel')
+    y_max = pdf.loc[1.5:1.9].max().values[0]
+    range_y = (-0.1 * y_max, 1.1 * y_max)
+    # print()
+    fig = px.line(
+        pdf,
+        x=x,
+        y=pdf.values.transpose()[0],
+        color=color,
+        range_x=(1.5, 1.9),
+        range_y=range_y,
+        labels={
+            'x': 'energy / eV',
+            'y': 'photon flux / (m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>)',
+            'color': 'pixel',
+        },
+        title=sub
+    )
+    props = {
+        'file': f'PL_plot_{sub}.html',
+        'type': 'PL_plot',
+        'tags': ['PL', 'plot']
+    }
+
+    asset_path = db.add_asset(props, f'PL_plot_{sub}')
+    fig.write_html(asset_path, include_plotlyjs='cdn')
+
+fig.show()
+# %% [markdown]
 # ## Calculation
 
 # %%
@@ -88,43 +124,6 @@ asset_path = db.add_asset(props, 'PL_metrics')
 pd.to_pickle(metrics, asset_path)
 fits.to_csv(bsf.change_extension(asset_path, 'csv'))
 
-
-# %% [markdown]
-# ## Plots
-
-# %%
-for sub, data in df.groupby('substrate', axis=1):
-    pdf = data.copy()
-    pdf = pdf.stack('pixel')
-    x = pdf.index.get_level_values('energy')
-    color = pdf.index.get_level_values('pixel')
-    y_max = pdf.loc[1.5:1.9].max().values[0]
-    range_y = (-0.1 * y_max, 1.1 * y_max)
-    # print()
-    fig = px.line(
-        pdf,
-        x=x,
-        y=pdf.values.transpose()[0],
-        color=color,
-        range_x=(1.5, 1.9),
-        range_y=range_y,
-        labels={
-            'x': 'energy / eV',
-            'y': 'photon flux / (m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>)',
-            'color': 'pixel',
-        },
-        title=sub
-    )
-    props = {
-        'file': f'PL_plot_{sub}.html',
-        'type': 'PL_plot',
-        'tags': ['PL', 'plot']
-    }
-
-    asset_path = db.add_asset(props, f'PL_plot_{sub}')
-    fig.write_html(asset_path, include_plotlyjs='cdn')
-
-fig.show()
 
 # %%
 sys.exit()
