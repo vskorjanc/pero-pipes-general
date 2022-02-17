@@ -15,13 +15,6 @@ from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries.eqe import eqe_analysis as bea
 
 # %% [markdown]
-# ## Import AM1.5G spectrum
-
-# %%
-am = pd.read_pickle('reference_spectra/AM1.5G.pkl')
-am.head()
-
-# %% [markdown]
 # ## Import measured data
 
 # %%
@@ -32,6 +25,14 @@ asset = db.find_asset({'type': 'EQE_df'})
 df = pd.read_pickle(asset.file)
 df = df.droplevel('param', axis=1)
 df.head()
+
+# %% [markdown]
+# ## Import AM1.5G spectrum
+
+# %%
+am = db.find_asset({'type': 'AM1.5G'})
+am = pd.read_pickle(am.file)
+am.head()
 
 # %%
 int_df = bsf.interpolate(df, 0.001, 'cubic')
