@@ -54,22 +54,17 @@ df.head()
 # %%
 for sub, data in df.groupby('substrate', axis=1):
     pdf = data.copy()
-    pdf = pdf.stack('pixel')
-    x = pdf.index.get_level_values('energy')
-    color = pdf.index.get_level_values('pixel')
+    pdf.columns = pdf.columns.get_level_values('pixel')
     y_max = pdf.loc[1.5:1.9].max().values[0]
     range_y = (-0.1 * y_max, 1.1 * y_max)
     # print()
     fig = px.line(
         pdf,
-        x=x,
-        y=pdf.values.transpose()[0],
-        color=color,
         range_x=(1.5, 1.9),
         range_y=range_y,
         labels={
-            'x': 'energy / eV',
-            'y': 'photon flux / (m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>)',
+            'energy': 'energy / eV',
+            'value': 'photon flux / (m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>)',
             'color': 'pixel',
         },
         title=sub
