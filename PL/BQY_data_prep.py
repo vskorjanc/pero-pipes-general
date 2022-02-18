@@ -7,6 +7,7 @@
 # %%
 import pandas as pd
 
+from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.pl import pl_data_prep as bplp
 from thot import ThotProject
@@ -29,13 +30,17 @@ def import_file(file):
 
 
 # %%
-db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/PL')
+db = ThotProject(dev_root='../../../../pero_pipes/data/2021-11-16/PL')
 df = ppdp.import_raw_data(db, import_file)
 df.head()
 
 # %%
-calib = db.find_asset({'type': 'BQY_calib_df'})
-calib = pd.read_pickle(calib.file)
+calib = bt.import_global_asset(
+    db,
+    a_type='BQY_calib_df',
+    a_path=r"root:/..\\scripts\\common\\PL\\calib\\BQY_calib_df.pkl",
+    dev_path='calib/BQY_calib_df.pkl',
+)
 calib.head()
 # %%
 flux_df = bplp.calc_photon_flux(df, calib, area=0.000012)
