@@ -2,6 +2,7 @@
 # # EQE analysis
 
 # %%
+from pathlib import Path
 import pandas as pd
 from thot import ThotProject
 import numpy as np
@@ -13,25 +14,30 @@ from plotly import express as px
 from bric_analysis_libraries import standard_functions as std
 from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries.eqe import eqe_analysis as bea
+from bix_analysis_libraries import thot as bt
 
 # %% [markdown]
 # ## Import measured data
 
 # %%
-db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
+db = ThotProject(dev_root='../../../../pero_pipes/data/2021-11-16/EQE')
 asset = db.find_asset({'type': 'EQE_df'})
 
 # %%
 df = pd.read_pickle(asset.file)
 df = df.droplevel('param', axis=1)
 df.head()
-
 # %% [markdown]
 # ## Import AM1.5G spectrum
-
 # %%
-am = db.find_asset({'type': 'AM1.5G'})
-am = pd.read_pickle(am.file)
+am = bt.import_global_asset(
+    db,
+    a_path=r"root:/../scripts/common/EQE/reference_spectra/AM1.5G.pkl",
+    dev_path=Path(r'reference_spectra/AM1.5G.pkl'),
+    a_type='AM1.5G',
+    import_function=pd.read_pickle
+)
+
 am.head()
 
 # %%
