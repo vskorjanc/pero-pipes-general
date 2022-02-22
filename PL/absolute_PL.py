@@ -129,7 +129,7 @@ props = {
 }
 asset_path = db.add_asset(props, 'PL_metrics')
 pd.to_pickle(metrics, asset_path)
-fits.to_csv(bsf.change_extension(asset_path, 'csv'))
+metrics.to_csv(bsf.change_extension(asset_path, 'csv'))
 
 
 # %%
