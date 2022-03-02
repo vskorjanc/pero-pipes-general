@@ -23,7 +23,7 @@ def import_file(file):
 
 
 # %%
-db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/EQE')
+db = ThotProject(dev_root='../../../data/2021-11-16/EQE')
 df = ppdp.import_raw_data(db, import_file)
 df = df.apply(lambda x: x / 100)
 df.head()

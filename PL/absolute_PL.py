@@ -19,6 +19,7 @@
 # ## Imports
 
 # %%
+import numpy as np
 from scipy.signal import find_peaks
 from scipy.signal import peak_widths
 from matplotlib import pyplot as plt
@@ -30,6 +31,7 @@ from bric_analysis_libraries import standard_functions as std
 from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries.pl import pl_analysis as bpa
 from bix_analysis_libraries.thot import export_asset
+from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.plotly import export_plotly
 
 from thot import ThotProject
@@ -61,11 +63,13 @@ def plot_PL(data):
 
 
 # %%
-db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/PL')
-asset = db.find_asset({'type': 'PL_df'})
+# ignore divide by zero error
+np.seterr(divide='ignore')
+# %%
+db = ThotProject(dev_root='../../../data/2021-11-16/PL')
 
 # %%
-df = pd.read_pickle(asset.file)
+df = ppdp.import_formatted_data(db, {'type': 'PL_df'})
 # take reference as a separate variable
 ref = df['white']
 df = df.drop('white', axis=1)

@@ -9,7 +9,7 @@ from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 # ## Data import
 
 # %%
-db = ThotProject(dev_root='../../../../evap_pero/data/2021-11-16/JV')
+db = ThotProject(dev_root='../../../data/2021-11-16/JV')
 assets = bt.find_assets(db)
 
 # %%

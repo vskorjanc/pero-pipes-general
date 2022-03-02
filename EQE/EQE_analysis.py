@@ -12,19 +12,20 @@ from scipy.integrate import simpson
 from plotly import express as px
 
 from bric_analysis_libraries import standard_functions as std
-from bix_analysis_libraries import bix_standard_functions as bsf
+from bix_analysis_libraries import (
+    bix_standard_functions as bsf,
+    thot as bt,
+)
 from bix_analysis_libraries.eqe import eqe_analysis as bea
-from bix_analysis_libraries import thot as bt
-
+from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 # %% [markdown]
 # ## Import measured data
 
 # %%
-db = ThotProject(dev_root='../../../../pero_pipes/data/2021-11-16/EQE')
-asset = db.find_asset({'type': 'EQE_df'})
+db = ThotProject(dev_root='../../../data/2021-11-16/EQE')
 
 # %%
-df = pd.read_pickle(asset.file)
+df = ppdp.import_formatted_data(db, {'type': 'EQE_df'})
 df = df.droplevel('param', axis=1)
 df.head()
 # %% [markdown]

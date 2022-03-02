@@ -2,14 +2,14 @@
 import pandas as pd
 from plotly import express as px
 
+from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from thot import ThotProject
 
 # %%
-db = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
-asset = db.find_asset({'type': 'UV-VIS_df'})
+db = ThotProject(dev_root='../../../data/2021-12-15/UV_VIS')
 
 # %%
-df = pd.read_pickle(asset.file)
+df = ppdp.import_formatted_data(db, {'type': 'UV-VIS_df'})
 df.columns = df.columns.droplevel(['pixel', 'date'])
 df = df.stack('substrate')
 df.head()
