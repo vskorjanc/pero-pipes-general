@@ -1,36 +1,46 @@
 # %%
 import pandas as pd
 
-from bix_analysis_libraries import thot as bt
 from thot import ThotProject
-from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
+# %%
+
+
+def import_file(file):
+    df = pd.read_csv(
+        file,
+        index_col=0,
+        delimiter='\t',
+        header=8,
+        nrows=9,
+        encoding='ISO-8859-15'
+    )
+    df = df.iloc[:, :-1]
+    df.columns = df.columns.str.split('_', expand=True)
+    df = df.rename_axis(('pixel', 'direction'), axis=1)
+    df = df.drop('P_MPP [mW/cm²]:')
+    df.index = ['J_sc', 'V_oc', 'FF', 'PCE',
+                'J_MPP', 'V_MPP', 'R_ser', 'R_par']
+    return df
 # %% [markdown]
 # ## Data import
 
-# %%
-db = ThotProject(dev_root='../../../data/2021-11-16/JV')
-assets = bt.find_assets(db)
 
 # %%
-dfs = []
-for asset in assets:
-    df = pd.read_csv(asset.file, index_col=0, delimiter='\t',
-                     header=8, nrows=9, usecols=range(13),  encoding='ISO-8859-15')
-    df.columns = pd.MultiIndex.from_product(
-        [['a', 'b', 'c', 'd', 'e', 'f'], ['for', 'rev']], names=['pixel', 'direction'])
-    substrate = ppdp.get_substrate_name(asset.file)[0]
-    df = bsf.add_level(df, substrate, 'substrate', axis=1)
-    dfs.append(df)
-df = pd.concat(dfs, axis=1)
+db = ThotProject(
+    dev_root='../../../data/4_source_FACsPbIBr/2022-01-06_Paul/JV')
+# %%
+df = ppdp.import_raw_data(
+    db,
+    import_file,
+    has_pixel=False,
+    rename_axis=False,
+    sort_columns=True
+)
+df = df.T
+# remove duplicate values
+df = df[~df.index.duplicated(keep='last')]
 df.head()
-
-# %%
-df = df.transpose()
-df = df.drop('P_MPP [mW/cm²]:', axis=1)
-df.columns = ['J_sc', 'V_oc', 'FF', 'PCE', 'J_MPP', 'V_MPP', 'R_ser', 'R_par']
-df.head()
-
 # %% [markdown]
 # ## Filter and average
 
