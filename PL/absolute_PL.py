@@ -30,11 +30,10 @@ from bric_analysis_libraries.pl import pl_analysis as pla
 from bric_analysis_libraries import standard_functions as std
 from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries.pl import pl_analysis as bpa
-from bix_analysis_libraries.thot import export_asset
+from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.plotly import export_plotly
 
-from thot import ThotProject
 
 from plotly import express as px
 
@@ -66,7 +65,7 @@ def plot_PL(data):
 # ignore divide by zero error
 np.seterr(divide='ignore')
 # %%
-db = ThotProject(dev_root='../../../data/2021-11-16/PL')
+db = bt.init_thot(__file__)
 
 # %%
 df = ppdp.import_formatted_data(db, {'type': 'PL_df'})
@@ -82,7 +81,7 @@ df.head()
 # %%
 for sub, data in df.groupby('substrate', axis=1):
     fig = plot_PL(data)
-    export_asset(f'PL_plot_{sub}.html', db, export_plotly, fig, 'PL_plot')
+    bt.export_asset(f'PL_plot_{sub}.html', db, export_plotly, fig, 'PL_plot')
 # %% [markdown]
 # ## Calculation
 
@@ -100,7 +99,7 @@ for name, data in df.groupby(axis=1, level=df.columns.names):
     sub = data.columns.get_level_values('substrate')[0]
     pix = data.columns.get_level_values('pixel')[0]
     fig = bpa.plot_hetf(data, fit, *emission_range)
-    export_asset(
+    bt.export_asset(
         f'HETF_plot_{sub}_{pix}.html',
         db,
         export_plotly,

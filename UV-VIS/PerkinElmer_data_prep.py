@@ -1,8 +1,9 @@
 # %%
 import pandas as pd
 
-from thot import ThotProject
+
 from bric_analysis_libraries.pl import pl_data_prep as pdp
+from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 
 # %% [markdown]
@@ -21,7 +22,7 @@ def import_file(file):
 
 
 # %%
-db = ThotProject(dev_root='../../../../evap_pero/data/2021-12-15/UV_VIS')
+db = bt.init_thot(__file__)
 df = ppdp.import_raw_data(db, import_file)
 df.head()
 

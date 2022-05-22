@@ -1,7 +1,8 @@
 # %%
 import pandas as pd
-from thot import ThotProject
 
+
+from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bric_analysis_libraries.pl import pl_data_prep as pdp
 
@@ -23,7 +24,7 @@ def import_file(file):
 
 
 # %%
-db = ThotProject(dev_root='../../../data/2021-11-16/EQE')
+db = bt.init_thot(__file__)
 df = ppdp.import_raw_data(db, import_file)
 df = df.apply(lambda x: x / 100)
 df.head()

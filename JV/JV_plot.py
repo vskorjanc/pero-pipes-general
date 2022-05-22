@@ -2,12 +2,11 @@
 from plotly import express as px
 import plotly.graph_objects as go
 from plotly import graph_objects as go
-from thot import ThotProject
 from bix_analysis_libraries import plotly as bp
 from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 # %%
-db = ThotProject(dev_root='../../../data/2021-11-16/JV')
+db = bt.init_thot(__file__)
 scans = ppdp.import_formatted_data(db, {'type': 'JV_scans'})
 scans.head()
 

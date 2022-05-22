@@ -10,7 +10,7 @@ import pandas as pd
 from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.pl import pl_data_prep as bplp
-from thot import ThotProject
+
 
 # %% [markdown]
 # Functions
@@ -30,7 +30,7 @@ def import_file(file):
 
 
 # %%
-db = ThotProject(dev_root='../../../data/2021-11-16/PL')
+db = bt.init_thot(__file__)
 df = ppdp.import_raw_data(db, import_file)
 df.head()
 

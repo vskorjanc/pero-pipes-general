@@ -2,7 +2,6 @@
 import pandas as pd
 
 from bix_analysis_libraries import thot as bt
-from thot import ThotProject
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 # %%
 
@@ -60,8 +59,7 @@ def remove_duplicates(
 
 
 # %%
-db = ThotProject(
-    dev_root='../../../data/2021-11-16/JV')
+db = bt.init_thot(__file__)
 # %%
 asset = db.find_asset({'type': ''})
 scans = ppdp.import_raw_data(

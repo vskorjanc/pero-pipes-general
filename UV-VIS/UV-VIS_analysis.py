@@ -1,12 +1,12 @@
 # %%
-import pandas as pd
 from plotly import express as px
 
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
-from thot import ThotProject
+
+from bix_analysis_libraries import thot as bt
 
 # %%
-db = ThotProject(dev_root='../../../data/2021-12-15/UV_VIS')
+db = bt.init_thot(__file__)
 
 # %%
 df = ppdp.import_formatted_data(db, {'type': 'UV-VIS_df'})

@@ -4,7 +4,7 @@
 # %%
 from pathlib import Path
 import pandas as pd
-from thot import ThotProject
+
 import numpy as np
 import scipy.constants as phys
 from scipy.integrate import simpson
@@ -22,7 +22,7 @@ from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 # ## Import measured data
 
 # %%
-db = ThotProject(dev_root='../../../data/2021-11-16/EQE')
+db = bt.init_thot(__file__)
 
 # %%
 df = ppdp.import_formatted_data(db, {'type': 'EQE_df'})
