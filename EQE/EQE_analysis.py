@@ -2,6 +2,7 @@
 # # EQE analysis
 
 # %%
+from plotly import graph_objects as go
 from pathlib import Path
 import pandas as pd
 
@@ -9,12 +10,12 @@ import numpy as np
 import scipy.constants as phys
 from scipy.integrate import simpson
 
-from plotly import express as px
 
 from bric_analysis_libraries import standard_functions as std
 from bix_analysis_libraries import (
     bix_standard_functions as bsf,
     thot as bt,
+    plotly as bp
 )
 from bix_analysis_libraries.eqe import eqe_analysis as bea
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
@@ -130,45 +131,32 @@ mpl = u_df.max()
 jsc_plot = mpl * jsc_df / jsc_df.max()
 j0_plot = mpl * j0_df / j0_df.max()
 plot_df = pd.concat(
-    [u_df, j0_plot, jsc_plot],
-    keys=['interpol. EQE w/ U. tail fit',
+    [df, u_df, j0_plot, jsc_plot],
+    keys=['measured', 'interpol. EQE w/ U. tail fit',
           'J<sub>0</sub> curve', 'J<sub>SC</sub> curve'],
     axis=0,
     names=['type', 'energy']
 )
+plot_df = plot_df.droplevel('date', axis=1)
+plot_df = bsf.flatten_column_index(plot_df)
 plot_df.head()
 
 # %%
-for name, data in plot_df.groupby(['substrate', 'pixel'], axis=1):
 
-    title = '_'.join(name)
 
-    x = data.index.get_level_values('energy')
-    color = data.index.get_level_values('type')
-    data.columns = pd.Index(['y'])  # clearing index for Plotly to work
+def plot_analysis_curves(data, visible):
+    traces = []
+    for tp, datum in data.groupby('type'):
+        scat = go.Scatter(
+            x=datum.index.get_level_values('energy'),
+            y=datum,
+            mode='markers' if tp == 'measured' else 'lines',
+            name=tp,
+            visible=visible
+        )
+        traces.append(scat)
+    return traces
 
-    fig = px.line(
-        data,
-        x=x,
-        y='y',
-        color=color,
-        labels={
-            'x': 'energy / eV',
-            'y': 'EQE',
-            'color': 'type',
-        },
-        title=title
-    )
 
-    measured = df[name]
-    m_val = measured.values
-    fig.add_scatter(x=measured.index, y=m_val, mode="markers",
-                    name="measured", marker=dict(color='#FFA15A'))
-
-    props = {
-        'file': f'EQE_plot_{title}.html',
-        'type': 'EQE_plot',
-        'tags': ['EQE', 'plot']
-    }
-    asset_path = db.add_asset(props, f'EQE_plot_{title}')
-    fig.write_html(asset_path, include_plotlyjs='cdn')
+fig = bp.multilayer_plot(plot_df, plot_analysis_curves)
+bt.export_asset('EQE_analysis_plot.html', db, bp.export_plotly, fig)
