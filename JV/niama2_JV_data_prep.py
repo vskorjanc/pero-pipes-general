@@ -65,7 +65,7 @@ asset = db.find_asset({'type': ''})
 scans = ppdp.import_raw_data(
     db,
     import_scans,
-    has_pixel=False,
+
     rename_axis=False,
     sort_columns=True
 )
@@ -77,7 +77,6 @@ scans.head()
 raw_metrics = ppdp.import_raw_data(
     db,
     import_metrics,
-    has_pixel=False,
     rename_axis=False,
     sort_columns=True
 )
