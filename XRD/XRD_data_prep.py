@@ -36,5 +36,4 @@ fig.update_layout(
         'ticks': ''
     }
 )
-fig.show()
 bp.export_plotly(fig, 'XRD_plot.html')
