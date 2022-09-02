@@ -1,8 +1,8 @@
 # %%
-import time
+from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries import thot as bt
-from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries import plotly as bp
+from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 import numpy as np
 import pandas as pd
 # %%
@@ -40,5 +40,8 @@ bt.export_asset('continuous-PL_df.pkl', db, pd.to_pickle, df)
 # %%
 plot_df = df.stack('time/s')
 plot_df = plot_df.droplevel('date', axis=1)
+# flatten in case there is pixel number
+plot_df = bsf.flatten_column_index(plot_df)
 fig = bp.heatmap_3D_plot(plot_df, xaxis='wavelength/nm')
+fig.show()
 bt.export_asset('continuous-PL_plot.html', db, bp.export_plotly, fig)
