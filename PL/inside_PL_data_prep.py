@@ -35,10 +35,8 @@ df = df.rename(
 )
 df.head()
 # %%
-plot_df = df.droplevel(['date', 'param'], axis=1)
-name = ['_'.join(col) for col in plot_df.columns.values]
-plot_df = pd.concat([plot_df], axis=1, keys=name, names=[
-                    'name', 'substrate', 'pixel'])
+plot_df = df.droplevel(['date'], axis=1)
+# name = ['_'.join(col) for col in plot_df.columns.values]
 plot_df = plot_df.stack(['substrate', 'pixel'])
 plot_df = plot_df.reset_index(['substrate', 'pixel'])
 plot_df.head()
@@ -53,3 +51,4 @@ fig.update_layout(
     yaxis_title="photon flux / m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>"
 )
 bt.export_asset('PL_plot.html', db, bp.export_plotly, fig)
+fig.show()
