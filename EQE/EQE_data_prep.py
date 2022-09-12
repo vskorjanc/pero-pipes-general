@@ -47,7 +47,8 @@ def import_niama2_eqe(db):
 
 
 def import_EQE(db):
-    if '.TRQ' in db.find_asset({'type': ''}).file:
+    assets = bt.find_assets(db)
+    if '.TRQ' in assets[0].file:
         df = import_niama2_eqe(db)
     else:
         df = import_outside_eqe(db)
