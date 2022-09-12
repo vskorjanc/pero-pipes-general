@@ -61,11 +61,9 @@ def remove_duplicates(
 # %%
 db = bt.init_thot(__file__)
 # %%
-asset = db.find_asset({'type': ''})
 scans = ppdp.import_raw_data(
     db,
     import_scans,
-
     rename_axis=False,
     sort_columns=True
 )
