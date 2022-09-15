@@ -37,14 +37,17 @@ df.head()
 # %%
 plot_df = df.droplevel(['date'], axis=1)
 # name = ['_'.join(col) for col in plot_df.columns.values]
-plot_df = plot_df.stack(['substrate', 'pixel'])
-plot_df = plot_df.reset_index(['substrate', 'pixel'])
+columns = list(plot_df.columns.names)
+columns.remove('param')
+plot_df = plot_df.stack(columns)
+plot_df = plot_df.reset_index(columns)
 plot_df.head()
 # %%
+line_dash = 'pixel' if 'pixel' in columns else None
 fig = px.line(
     plot_df,
     color='substrate',
-    line_dash='pixel'
+    line_dash=line_dash
 )
 fig.update_layout(
     xaxis_title='energy / eV',
