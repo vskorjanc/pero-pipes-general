@@ -54,4 +54,4 @@ fig.update_layout(
     yaxis_title="photon flux / m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>"
 )
 bt.export_asset('PL_plot.html', db, bp.export_plotly, fig)
-fig.show()
+# fig.show()
