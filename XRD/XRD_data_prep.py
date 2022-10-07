@@ -21,19 +21,7 @@ def import_file(file):
 # %%
 db = bt.init_thot(__file__)
 df = ppdp.import_raw_data(db, import_file)
+df = df.apply(lambda x: x / x.max())
 df.head()
 # %%
 bt.export_asset('XRD_df.pkl', db, pd.to_pickle, df)
-# %%
-plot_df = df.droplevel(['date', 'param'], axis=1)
-fig = px.line(plot_df)
-fig.update_layout(
-    xaxis_title='2<i>&#920;</i> / &deg;',
-    yaxis={
-        'title': 'intensity',
-        'showticklabels': False,
-        'showgrid': False,
-        'ticks': ''
-    }
-)
-bp.export_plotly(fig, 'XRD_plot.html')
