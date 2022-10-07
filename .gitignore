@@ -1,5 +1,6 @@
 .ipynb_checkpoints/
 *.ipynb
 *.md
+*.cif
 !README.md
 *_files/
