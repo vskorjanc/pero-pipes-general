@@ -4,3 +4,4 @@
 *.cif
 !README.md
 *_files/
+XRD/patterns/*.txt
