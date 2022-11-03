@@ -116,24 +116,25 @@ fig2.update_layout(
 # %%
 bt.export_asset('substrate_boxplot.html', db, bp.export_plotly, fig2)
 # %%
-if 'groups' not in container.metadata:
-    sys.exit()
-groups = container.metadata['groups']
-inverted_groups = invert_groups(groups)
-# %%
+if 'groups' in container.metadata:
+    groups = container.metadata['groups']
+    inverted_groups = invert_groups(groups)
 
+    def get_group(substrate, inverted_groups):
+        if substrate in inverted_groups:
+            return inverted_groups[substrate]
+        else:
+            return np.nan
 
-def get_group(substrate, inverted_groups):
-    if substrate in inverted_groups:
-        return inverted_groups[substrate]
-    else:
-        return np.nan
+    metrics['group'] = [get_group(substrate, inverted_groups)
+                        for substrate in metrics.index.get_level_values('substrate')]
 
+else:
+    metrics['group'] = metrics.index.get_level_values('substrate')
 
-metrics['group'] = [get_group(substrate, inverted_groups)
-                    for substrate in metrics.index.get_level_values('substrate')]
 metrics = metrics.set_index('group', append=True)
 metrics.head()
+# %%
 # calculate the mean of forward and backward scan
 mean = metrics.groupby(['substrate', 'pixel', 'group']).aggregate('mean')
 # hide points with V_oc < 0.2 V
@@ -142,6 +143,7 @@ mean = mean.where(lambda x: x['V_oc'] > 0.2).dropna()
 # %%
 fig3 = bp.multilayer_plot(mean, plot_single_grouped_metric,
                           params=('J_sc', 'V_oc', 'FF', 'PCE'))
+fig3.show()
 bt.export_asset('grouped_boxplot.html', db, bp.export_plotly, fig3)
 # %%
 
