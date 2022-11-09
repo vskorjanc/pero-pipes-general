@@ -40,7 +40,10 @@ def import_metrics(db):
     metrics = metrics.loc[[
         'LuQY (%)', 'iVoc (V)', 'Bandgap (eV)', 'Jsc (mA/cm2)']]
     metrics = metrics.droplevel('date', axis=1)
-    metrics.columns.names = ['substrate', 'date']
+    if 'pixel' in metrics.columns.names:
+        metrics.columns.names = ['substrate', 'pixel', 'date']
+    else:
+        metrics.columns.names = ['substrate', 'date']
     return metrics.T
 
 
