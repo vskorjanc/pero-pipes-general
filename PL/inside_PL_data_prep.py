@@ -24,8 +24,33 @@ def import_file(file):
     return df
 
 
+def import_metric(file):
+    df = pd.read_csv(
+        file,
+        sep='\t',
+        nrows=10,
+        encoding='mbcs',
+        index_col=0
+    )
+    return df
+
+
+def import_metrics(db):
+    metrics = ppdp.import_raw_data(db, import_metric)
+    metrics = metrics.loc[[
+        'LuQY (%)', 'iVoc (V)', 'Bandgap (eV)', 'Jsc (mA/cm2)']]
+    metrics = metrics.droplevel('date', axis=1)
+    metrics.columns.names = ['substrate', 'date']
+    return metrics.T
+
+
 # %%
 db = bt.init_thot(__file__)
+metrics = import_metrics(db)
+ppdp.pickle_w_markdown(metrics.droplevel('date'), 'PL_metrics', db)
+metrics.head()
+
+# %%
 df = ppdp.import_raw_data(db, import_file)
 df = pldp.df_to_energy(df)
 df = df * 10000  # convert from cm-2 to m-2
