@@ -102,4 +102,4 @@ metrics.head()
 # %%
 # %%
 bt.export_asset('raw_JV_metr.pkl', db, pd.to_pickle, raw_metrics)
-bt.export_asset('JV_metrics.pkl', db, pd.to_pickle, metrics)
+ppdp.pickle_w_markdown(metrics, 'JV_metrics', db)

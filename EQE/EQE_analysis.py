@@ -114,14 +114,7 @@ metrics['Voc_rad/V'] = ratio.apply(bea.calc_voc_rad)
 metrics.head()
 
 # %%
-props = {
-    'file': 'EQE_metrics.pkl',
-    'type': 'EQE_metrics',
-    'tags': ['EQE', 'metrics']
-}
-asset_path = db.add_asset(props, 'EQE_metrics')
-pd.to_pickle(metrics, asset_path)
-metrics.to_csv(bsf.change_extension(asset_path, 'csv'))
+ppdp.pickle_w_markdown(metrics, 'EQE_metrics', db)
 
 # %% [markdown]
 # ## Plots

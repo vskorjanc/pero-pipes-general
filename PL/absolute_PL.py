@@ -125,15 +125,7 @@ metrics['PLQY'] = bpa.calculate_plqy(
 metrics.head()
 
 # %%
-props = {
-    'file': 'PL_metrics.pkl',
-    'type': 'PL_metrics',
-    'tags': ['PL', 'metrics']
-}
-asset_path = db.add_asset(props, 'PL_metrics')
-pd.to_pickle(metrics, asset_path)
-metrics.to_csv(bsf.change_extension(asset_path, 'csv'))
-
+ppdp.pickle_w_markdown(metrics, 'PL_metrics', db)
 
 # %%
 sys.exit()
