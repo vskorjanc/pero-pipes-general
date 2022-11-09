@@ -7,7 +7,7 @@ import numpy as np
 # %%
 
 
-def import_file(file):
+def import_txt(file):
     # regex for 2 or more spaces necessary because of `d (A)` column
     df = pd.read_csv(
         file,
@@ -29,11 +29,7 @@ def add_compound_level(df, file):
     return df
 
 
-# %%
-files = glob.glob('*.txt')
-dfs = []
-for file in files:
-    df = import_file(file)
+def normalize_and_reindex(df):
     # sum up multiple values for 2theta and normalize
     df = df.groupby('2theta').aggregate('sum')
     df = df.apply(lambda x: x / x.max())
@@ -41,11 +37,37 @@ for file in files:
         np.linspace(8, 60, 5201),
         method='nearest',
         fill_value=0,
-        tolerance=0.004
+        tolerance=0.005
     )
-    df = add_compound_level(df, file)
-    dfs.append(df)
+    return df
+
+
+def import_xy(file):
+    df = pd.read_csv(
+        file,
+        index_col=0,
+        sep='\s+',
+        names=['2theta', 'intensity']
+    )
+    return df
+
+
+def import_and_append(import_file, glob_pattern, lst):
+    files = glob.glob(glob_pattern)
+    for file in files:
+        df = import_file(file)
+        df = normalize_and_reindex(df)
+        df = add_compound_level(df, file)
+        lst.append(df)
+
+
+# %%
+dfs = []
+types = [[import_txt, '*.txt'], [import_xy, '*.xy']]
+for if_glb in types:
+    import_and_append(*if_glb, dfs)
 df = pd.concat(dfs, axis=1, sort=True)
 df.head()
+
 # %%
 pd.to_pickle(df, 'patterns.pkl')

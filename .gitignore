@@ -5,3 +5,5 @@
 !README.md
 *_files/
 XRD/patterns/*.txt
+XRD/patterns/*.xy
+XRD/patterns/duplicates
