@@ -63,7 +63,7 @@ for zmax in [0.3, 1]:
         aspect='auto',
         labels={'color': 'Intensity'}
     )
-    bt.export_asset(f'heatmap_flot_i{zmax}.html', db, bp.export_plotly, hm_fig)
+    bt.export_asset(f'heatmap_plot_i{zmax}.html', db, bp.export_plotly, hm_fig)
 # %%
 # px.imshow(plot_df)
 plot_df = plot_df.stack(0)
