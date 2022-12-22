@@ -8,6 +8,7 @@
 import pandas as pd
 
 from bix_analysis_libraries import thot as bt
+from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.pl import pl_data_prep as bplp
 
@@ -31,7 +32,20 @@ def import_file(file):
 
 # %%
 db = bt.init_thot(__file__)
-df = ppdp.import_raw_data(db, import_file)
+assets = bt.find_assets(db)
+dfs = []
+for asset in assets:
+    df = import_file(asset.file)
+    match = ppdp.get_substrate_name(asset.file)
+    if match[0] == 'white':
+        df = bsf.add_levels(df, ['white', ''], ['substrate', 'pixel'], axis=1)
+    else:
+        df = bsf.add_levels(df, [match[0], match[1]], [
+                            'substrate', 'pixel'], axis=1)
+    dfs.append(df)
+df = pd.concat(dfs, axis=1)
+df = df.sort_index(axis=1)
+df = df.rename_axis(columns=['substrate', 'pixel', 'param'])
 df.head()
 
 # %%
