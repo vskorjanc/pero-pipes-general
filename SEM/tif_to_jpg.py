@@ -6,6 +6,10 @@ import os
 # %%
 db = bt.init_thot(__file__)
 assets = bt.find_assets(db)
+if not os.path.exists('converted'):
+    os.mkdir('converted')
+
+# %%
 for asset in assets:
     img = Image.open(asset.file)
     rgb_img = img.convert('RGB')
