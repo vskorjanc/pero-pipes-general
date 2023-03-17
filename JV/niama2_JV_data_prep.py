@@ -92,6 +92,8 @@ raw_metrics['FF'] = raw_metrics['FF'].where(lambda x: x < 90)
 raw_metrics['J_sc'] = -1 * raw_metrics['J_sc']
 raw_metrics['J_MPP'] = -1 * raw_metrics['J_MPP']
 
+# multiply R_par with 100
+raw_metrics['R_par'] *= 1000
 # %%
 metrics = raw_metrics.groupby(level=['substrate', 'pixel']).mean()
 metrics.head()
