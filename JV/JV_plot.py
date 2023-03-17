@@ -1,5 +1,4 @@
 # %%
-import sys
 import numpy as np
 from plotly import express as px
 import plotly.graph_objects as go
@@ -95,6 +94,18 @@ def plot_single_grouped_metric(data, visible):
     return traces
 
 
+def rename_metrics(metrics):
+    metrics = metrics.rename(columns={
+        'PCE': 'PCE / %',
+        'J_sc': '<i>J</i><sub>SC</sub> / mA cm<sup>&#8722;2</sup>',
+        'V_oc': '<i>V</i><sub>OC</sub> / V',
+        'FF': 'FF / %',
+        'R_ser': '<i>R</i><sub>ser</sub> / &#8486; cm<sup>2</sup>',
+        'R_par': '<i>R</i><sub>par</sub> / &#8486; cm<sup>2</sup>'
+    })
+    return metrics
+
+
 # %%
 fig = bp.multilayer_plot(scans, plot_single_scan, presets=presets)
 fig.update_layout(
@@ -107,8 +118,19 @@ fig.update_layout(
 bt.export_asset('JV-scans_plot.html', db, bp.export_plotly, fig)
 # %%
 metrics = ppdp.import_formatted_data(db, {"type": "raw_JV_metr"})
-fig2 = bp.multilayer_plot(metrics, plot_single_metric,
-                          params=('J_sc', 'V_oc', 'FF', 'PCE'))
+metrics = metrics.drop(['J_MPP', 'V_MPP'], axis=1)
+
+# make PCE the first row (to show first in plots)
+cols = metrics.columns.to_list()
+cols.remove('PCE')
+cols.insert(0, 'PCE')
+metrics = metrics[cols]
+
+metrics.head()
+
+# %%
+plot_metrics = rename_metrics(metrics)
+fig2 = bp.multilayer_plot(plot_metrics, plot_single_metric)
 fig2.update_layout(
     boxmode='group'  # group together boxes of the different traces for each value of x
 )
@@ -140,9 +162,9 @@ mean = metrics.groupby(['substrate', 'pixel', 'group']).aggregate('mean')
 # hide points with V_oc < 0.2 V
 mean = mean.where(lambda x: x['V_oc'] > 0.2).dropna()
 # %%
-# %%
-fig3 = bp.multilayer_plot(mean, plot_single_grouped_metric,
-                          params=('J_sc', 'V_oc', 'FF', 'PCE'))
+mean = rename_metrics(mean)
+fig3 = bp.multilayer_plot(mean, plot_single_grouped_metric)
+fig3.show()
 bt.export_asset('grouped_boxplot.html', db, bp.export_plotly, fig3)
 # %%
 
