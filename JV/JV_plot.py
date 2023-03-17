@@ -164,7 +164,6 @@ mean = mean.where(lambda x: x['V_oc'] > 0.2).dropna()
 # %%
 mean = rename_metrics(mean)
 fig3 = bp.multilayer_plot(mean, plot_single_grouped_metric)
-fig3.show()
 bt.export_asset('grouped_boxplot.html', db, bp.export_plotly, fig3)
 # %%
 
