@@ -102,11 +102,8 @@ j0 = j0_df.apply(lambda x: simpson(x, x.index)) * phys.e
 metrics['J0/(A m-2)'] = j0
 
 # %%
-[jsc_df, am_ri] = std.common_reindex([u_df, am], fillna=np.nan)
-jsc_df = jsc_df.apply(
-    lambda x: x * am_ri['AM1.5G/(photons s-1 m-2 eV-1)']).dropna()
-jsc = jsc_df.apply(lambda x: simpson(x, x.index)) * phys.e
-metrics['Jsc/(mA cm-2)'] = jsc / 10
+jsc = bea.calc_Jsc(u_df, am)
+metrics['Jsc/(mA cm-2)'] = jsc
 
 # %%
 ratio = jsc / j0
@@ -121,10 +118,10 @@ ppdp.pickle_w_markdown(metrics, 'EQE_metrics', db)
 
 # %%
 mpl = u_df.max()
-jsc_plot = mpl * jsc_df / jsc_df.max()
+# jsc_plot = mpl * jsc_df / jsc_df.max()
 j0_plot = mpl * j0_df / j0_df.max()
 plot_df = pd.concat(
-    [df, u_df, j0_plot, jsc_plot],
+    [df, u_df, j0_plot],
     keys=['measured', 'interpol. EQE w/ U. tail fit',
           'J<sub>0</sub> curve', 'J<sub>SC</sub> curve'],
     axis=0,
