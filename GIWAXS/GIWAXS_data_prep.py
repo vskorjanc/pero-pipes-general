@@ -2,21 +2,12 @@
 import pandas as pd
 import numpy as np
 from plotly import express as px
-from BaselineRemoval import BaselineRemoval
 
 from bix_analysis_libraries import thot as bt
+from bix_analysis_libraries.xrd import xrd_data_prep as bx
 from bix_analysis_libraries import plotly as bp
 from bix_analysis_libraries import bix_standard_functions as bsf
 # %%
-
-
-def subtract_background(df):
-    sub_df = pd.DataFrame(index=df.index, columns=df.columns)
-    for column in df:
-        baseObj = BaselineRemoval(df[column].dropna())
-        subtracted = baseObj.ZhangFit()
-        sub_df[column] = subtracted
-    return sub_df
 
 
 def import_file(file):
@@ -28,7 +19,7 @@ def import_file(file):
     )
     df.columns = df.columns.astype(np.float64)
     df.columns.name = 'Angle/deg'
-    df = subtract_background(df)
+    df = bx.subtract_background(df)
     df = df.apply(lambda x: x / x.max())
     return df
 
