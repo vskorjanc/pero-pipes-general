@@ -27,7 +27,7 @@ for sub, data in df.groupby("substrate", axis=1):
         dash = presets[direction]
         fig.add_trace(
             go.Scatter(
-                y=y,
+                y=-y,
                 x=-x,
                 line_dash=dash,
                 line_color=color,
