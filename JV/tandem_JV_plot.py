@@ -16,10 +16,8 @@ presets = {"forw": None, "rev": "dash"}
 
 fig = go.Figure()
 color_count = 0
-colors = px.colors.qualitative.Plotly
 for sub, data in df.groupby("substrate", axis=1):
-    color = colors[color_count % 10]
-    color_count += 1
+    (color, color_count) = bp.give_next_color(color_count)
     for direction, datum in data.groupby("direction"):
         y = datum[sub].values
         x = datum.index.get_level_values("voltage")
