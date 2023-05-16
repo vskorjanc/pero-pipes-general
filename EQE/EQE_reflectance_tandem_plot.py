@@ -45,3 +45,34 @@ fig.update_layout(
     xaxis_title="wavelength / nm",
 )
 _ = bt.export_asset("EQE_reflectance_plot.html", db, bp.export_plotly, fig)
+fig.show()
+# %%
+
+presets = {"1 - R": None, "Top": "dash", "Bottom": "dot"}
+
+fig2 = go.Figure()
+color_count = 0
+for sub, data in plot_df.groupby("substrate", axis=1):
+    (color, color_count) = bp.give_next_color(color_count)
+    for param, datum in data.groupby("param"):
+        y = datum[sub].values
+        x = datum.index.get_level_values("wavelength / nm")
+        showlegend = True if param == "1 - R" else False
+        dash = presets[param]
+        fig2.add_trace(
+            go.Scatter(
+                y=y,
+                x=x,
+                line_dash=dash,
+                line_color=color,
+                legendgroup=sub,
+                name=sub,
+                showlegend=showlegend,
+            )
+        )
+fig2.update_layout(
+    xaxis_title="wavelength / nm",
+    legend_title="Substrate",
+)
+_ = bt.export_asset("EQE_reflectance_plot_all.html", db, bp.export_plotly, fig)
+fig2.show()
