@@ -74,4 +74,4 @@ fig2.update_layout(
     xaxis_title="wavelength / nm",
     legend_title="Substrate",
 )
-_ = bt.export_asset("EQE_reflectance_plot_all.html", db, bp.export_plotly, fig)
+_ = bt.export_asset("EQE_reflectance_plot_all.html", db, bp.export_plotly, fig2)
