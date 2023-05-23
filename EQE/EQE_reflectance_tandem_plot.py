@@ -28,15 +28,26 @@ def plot_single(data, visible):
 
 # %%
 db = bt.init_thot(__file__)
-reflectance = ppdp.import_formatted_data(db, {"type": "reflection_tandem_df"})
-reflectance = reflectance.apply(lambda x: 1 - x)
-reflectance = reflectance.rename(columns={"reflectance": "1 - R"}, level="param")
-reflectance.head()
+try:
+    reflectance = ppdp.import_formatted_data(db, {"type": "reflection_tandem_df"})
+    reflectance = reflectance.apply(lambda x: 1 - x)
+    reflectance = reflectance.rename(columns={"reflectance": "1 - R"}, level="param")
+    reflectance.head()
+except SystemExit as e:
+    reflectance = pd.DataFrame()
 # %%
-eqe = ppdp.import_formatted_data(db, {"type": "EQE_tandem_df"})
-eqe.head()
+try:
+    eqe = ppdp.import_formatted_data(db, {"type": "EQE_tandem_df"})
+    eqe.columns.names = ["substrate", "param"]
+    eqe.head()
+except SystemExit as e:
+    eqe = pd.DataFrame()
 # %%
-df = pd.concat([reflectance, eqe], axis=1, sort=True)
+df = pd.concat(
+    [reflectance, eqe],
+    axis=1,
+    sort=True,
+)
 df.head()
 # %%
 plot_df = df.stack("param")
@@ -48,7 +59,7 @@ _ = bt.export_asset("EQE_reflectance_plot.html", db, bp.export_plotly, fig)
 
 # %%
 
-presets = {"1 - R": None, "Top": "dash", "Bottom": "dot"}
+presets = {"1 - R": "dash", "Top": None, "Bottom": None}
 
 fig2 = go.Figure()
 color_count = 0
