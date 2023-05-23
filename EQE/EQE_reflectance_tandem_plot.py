@@ -68,7 +68,7 @@ for sub, data in plot_df.groupby("substrate", axis=1):
     for param, datum in data.groupby("param"):
         y = datum[sub].values
         x = datum.index.get_level_values("wavelength / nm")
-        showlegend = True if param == "1 - R" else False
+        showlegend = True if param == "Bottom" else False
         dash = presets[param]
         fig2.add_trace(
             go.Scatter(
