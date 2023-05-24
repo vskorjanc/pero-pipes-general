@@ -1,4 +1,5 @@
 # %%
+import sys
 import pandas as pd
 from plotly import express as px
 from plotly import graph_objects as go
@@ -28,18 +29,22 @@ def plot_single(data, visible):
 
 # %%
 db = bt.init_thot(__file__)
+reflectance = db.find_assets({"type": "reflection_tandem_df"})
+eqe = db.find_assets({"type": "EQE_tandem_df"})
+if len([*reflectance, *eqe]) == 0:
+    sys.exit()
+
+# %%
 try:
     reflectance = ppdp.import_formatted_data(db, {"type": "reflection_tandem_df"})
     reflectance = reflectance.apply(lambda x: 1 - x)
     reflectance = reflectance.rename(columns={"reflectance": "1 - R"}, level="param")
-    reflectance.head()
 except SystemExit as e:
     reflectance = pd.DataFrame()
 # %%
 try:
     eqe = ppdp.import_formatted_data(db, {"type": "EQE_tandem_df"})
     eqe.columns.names = ["substrate", "param"]
-    eqe.head()
 except SystemExit as e:
     eqe = pd.DataFrame()
 # %%
