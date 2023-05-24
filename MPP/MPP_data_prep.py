@@ -19,12 +19,24 @@ def import_file(file):
     df = df.dropna()
     df = df.drop_duplicates("time/s")
     df["time/s"] = pd.to_numeric(df["time/s"])
-    for column in ["current_density/(mA cm-2)", "power/(mW cm-2)"]:
-        df[column] = df[column] * -1
+    for column in df.columns:
+        df[column] = abs(df[column])
     df = df.set_index("time/s")
     return df
 
 
+def rename_columns(df):
+    df = df.rename(
+        columns={
+            "power/(mW cm-2)": "SPO / mW cm<sup>&#8722;2</sup>",
+            "current_density/(mA cm-2)": "<i>J</i> / mA cm<sup>&#8722;2</sup>",
+            "voltage/V": "<i>V</i> / V",
+        }
+    )
+    return df
+
+
+# %%
 db = bt.init_thot(__file__)
 df = ppdp.import_raw_data(db, import_file)
 df = df.sort_index()
@@ -36,6 +48,11 @@ plot_df = df.droplevel("date", axis=1)
 to_stack = list(plot_df.columns.names)
 to_stack.remove("param")
 plot_df = plot_df.stack(to_stack)
+cols = plot_df.columns.to_list()
+cols.remove("power/(mW cm-2)")
+cols.insert(0, "power/(mW cm-2)")
+plot_df = plot_df[cols]
+plot_df = rename_columns(plot_df)
 plot_df.head()
 # %%
 
@@ -93,6 +110,6 @@ def plot_MPP(data, visible):
 # %%
 fig = bp.multilayer_plot(plot_df, plot_MPP)
 fig.update_layout(
-    xaxis_title="time/s",
+    xaxis_title="time / s",
 )
 bt.export_asset("MPP_plot.html", db, bp.export_plotly, fig)
