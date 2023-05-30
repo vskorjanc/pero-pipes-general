@@ -57,7 +57,6 @@ def import_metrics(file):
     df = pd.read_csv(
         file, index_col=0, delimiter="\t", header=8, nrows=9, encoding="ISO-8859-15"
     )
-    print(df)
     try:
         df = extract_direction(df)
         # remove last column
@@ -83,6 +82,7 @@ raw_metrics.head()
 # remove FF > 90 %
 raw_metrics["FF"] = raw_metrics["FF"].where(lambda x: x < 90)
 if "pixel" in raw_metrics.index.names:
+    print("yes")
     # make J_sc and J_MPP positive
     raw_metrics["J_sc"] = -1 * raw_metrics["J_sc"]
     raw_metrics["J_MPP"] = -1 * raw_metrics["J_MPP"]
