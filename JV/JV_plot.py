@@ -144,6 +144,9 @@ bt.export_asset("substrate_boxplot.html", db, bp.export_plotly, fig2)
 if "groups" in container.metadata:
     groups = container.metadata["groups"]
     inverted_groups = invert_groups(groups)
+    ordering = []
+    for key, _ in groups.items():
+        ordering.append(key)
 
     def get_group(substrate, inverted_groups):
         if substrate in inverted_groups:
@@ -155,15 +158,21 @@ if "groups" in container.metadata:
         get_group(substrate, inverted_groups)
         for substrate in metrics.index.get_level_values("substrate")
     ]
+    metrics["ordering"] = [ordering.index(group) for group in metrics["group"]]
 
 else:
     metrics["group"] = metrics.index.get_level_values("substrate")
 
+# %%
 metrics = metrics.set_index("group", append=True)
+if "ordering" in metrics.columns:
+    metrics = metrics.set_index("ordering", append=True)
+    metrics = metrics.sort_index(level="ordering")
+    metrics = metrics.droplevel("ordering")
 metrics.head()
 # %%
 # calculate the mean of forward and backward scan
-mean = metrics.groupby(["substrate", "pixel", "group"]).aggregate("mean")
+mean = metrics.groupby(["substrate", "pixel", "group"], sort=False).aggregate("mean")
 # hide points with V_oc < 0.2 V
 mean = mean.where(lambda x: x["V_oc"] > 0.2).dropna()
 # %%
