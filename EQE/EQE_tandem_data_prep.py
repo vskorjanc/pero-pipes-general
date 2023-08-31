@@ -22,7 +22,7 @@ def import_file(file):
         usecols=["wavelength / nm", "EQE"],
         engine="python",
         skipfooter=17,
-        encoding="ANSI",
+        encoding="ISO-8859-15",
     )
     return df
 
