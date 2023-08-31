@@ -1,5 +1,6 @@
 # %%
 import numpy as np
+import pandas as pd
 from plotly import express as px
 import plotly.graph_objects as go
 from plotly import graph_objects as go
@@ -158,7 +159,10 @@ if "groups" in container.metadata:
         get_group(substrate, inverted_groups)
         for substrate in metrics.index.get_level_values("substrate")
     ]
-    metrics["ordering"] = [ordering.index(group) for group in metrics["group"]]
+    metrics["ordering"] = [
+        np.nan if pd.isnull(group) else ordering.index(group)
+        for group in metrics["group"]
+    ]
 
 else:
     metrics["group"] = metrics.index.get_level_values("substrate")
