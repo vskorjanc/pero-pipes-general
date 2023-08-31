@@ -108,7 +108,7 @@ date: {formatted_date}
 
 {JV_scans_plot}
 
-[[JV/JV_metrics/JV_metrics.md]]
+[[JV/JV_metrics/JV_metrics.md|JV_metrics]]
 
 ### MPP
 
@@ -140,7 +140,7 @@ date: {formatted_date}
 
 {tandem_JV_plot}
 
-[[tandem_JV/JV_metrics/JV_metrics.md]]
+[[tandem_JV/raw_JV_metrics/raw_JV_metrics.md|raw_JV_metrics]]
 
 ### MPP
 
@@ -151,6 +151,8 @@ date: {formatted_date}
 {EQE_reflectance_plot}
 
 {EQE_reflectance_plot_all}
+
+![[optical_tandem/EQE_tandem/EQE_tandem_metrics/EQE_tandem_metrics.md]]
 
 """
 # %%
