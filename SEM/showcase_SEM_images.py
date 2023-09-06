@@ -1,13 +1,17 @@
 # %%
 import re
 import os
+import sys
 from bix_analysis_libraries import thot as bt
 
 # %%
 db = bt.init_thot(__file__)
 
 # %%
-files = os.listdir("converted")
+try:
+    files = os.listdir("converted")
+except FileNotFoundError:
+    sys.exit()
 
 # %%
 current_path = os.getcwd()
