@@ -70,8 +70,7 @@ PL_plot = create_iframe("PL_plot", "inside_PL", batch_path)
 XRD_plot = create_iframe("XRD_plot", "XRD", batch_path)
 
 # %%
-markdown_content = f"""
----
+markdown_content = f"""---
 tags: [batch]
 date: {formatted_date}
 ---
