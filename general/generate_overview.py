@@ -8,9 +8,7 @@ import os
 def create_iframe(asset_name, container_name, root_path):
     file = os.path.join(root_path, container_name, asset_name, asset_name)
     file = f"{file}.html"
-    iframe = (
-        f'<iframe border=0 frameborder=0 height=550 width=700 src="{file}"> </iframe>'
-    )
+    iframe = f'<iframe border=0 frameborder=0 height=550 width=700 src="file:{file}"> </iframe>'
     return iframe
 
 
