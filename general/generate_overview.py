@@ -98,6 +98,8 @@ date: {formatted_date}
 
 {log_plot}
 
+{source_hist_log_plot}
+
 {pressure_temp_log_plot}
 
 ## Measurements - single junction
