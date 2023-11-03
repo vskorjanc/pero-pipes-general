@@ -10,7 +10,7 @@ from plotly import express as px
 
 def import_file(file):
     skiprows = 17
-    with open(file) as f:
+    with open(file, "r", encoding="utf-8", errors="ignore") as f:
         if "iVoc (V) HET" in f.read():
             skiprows = 18
     df = pd.read_csv(
@@ -26,22 +26,16 @@ def import_file(file):
 
 
 def import_metric(file):
-    with open(file) as f:
-        if "iVoc (V) HET" in f.read():
-            nrows = 11
-            metrics = [
-                "LuQY (%)",
-                "iVoc (V)",
-                "iVoc (V) HET",
-                "Bandgap (eV)",
-                "Jsc (mA/cm2)",
-            ]
-        else:
-            nrows = 10
-            metrics = ["LuQY (%)", "iVoc (V)", "Bandgap (eV)", "Jsc (mA/cm2)"]
-    df = pd.read_csv(
-        file, sep="\t", nrows=nrows, encoding="unicode_escape", index_col=0
-    )
+    metrics = [
+        "LuQY (%)",
+        "iVoc (V)",
+        "iVoc (V) HET",
+        "Bandgap (eV)",
+        "Jsc (mA/cm2)",
+    ]
+    df = pd.read_csv(file, sep="\t", nrows=11, encoding="unicode_escape", index_col=0)
+    if "iVoc (V) HET" not in df.index.values:
+        metrics.pop("iVoc (V) HET")
     df = df.loc[metrics]
     return df
 
