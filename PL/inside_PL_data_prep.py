@@ -17,7 +17,7 @@ def import_file(file):
         file,
         sep="\t",
         skiprows=skiprows,
-        encoding="mbcs",
+        encoding="unicode_escape",
         index_col=0,
         names=["wavelength/nm", "flux [photons/(cm2 s nm)]", "counts/s"],
         usecols=["wavelength/nm", "flux [photons/(cm2 s nm)]"],
@@ -39,7 +39,9 @@ def import_metric(file):
         else:
             nrows = 10
             metrics = ["LuQY (%)", "iVoc (V)", "Bandgap (eV)", "Jsc (mA/cm2)"]
-    df = pd.read_csv(file, sep="\t", nrows=nrows, encoding="mbcs", index_col=0)
+    df = pd.read_csv(
+        file, sep="\t", nrows=nrows, encoding="unicode_escape", index_col=0
+    )
     df = df.loc[metrics]
     return df
 
