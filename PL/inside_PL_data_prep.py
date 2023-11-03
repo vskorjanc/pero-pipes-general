@@ -1,8 +1,5 @@
 # %%
-from bix_analysis_libraries import (
-    thot as bt,
-    plotly as bp
-)
+from bix_analysis_libraries import thot as bt, plotly as bp
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.pl import pl_data_prep as pldp
 import pandas as pd
@@ -14,43 +11,49 @@ from plotly import express as px
 def import_file(file):
     df = pd.read_csv(
         file,
-        sep='\t',
+        sep="\t",
         skiprows=17,
-        encoding='mbcs',
+        encoding="mbcs",
         index_col=0,
-        names=['wavelength/nm', 'flux [photons/(cm2 s nm)]', 'counts/s'],
-        usecols=['wavelength/nm', 'flux [photons/(cm2 s nm)]']
+        names=["wavelength/nm", "flux [photons/(cm2 s nm)]", "counts/s"],
+        usecols=["wavelength/nm", "flux [photons/(cm2 s nm)]"],
     )
     return df
 
 
 def import_metric(file):
-    df = pd.read_csv(
-        file,
-        sep='\t',
-        nrows=10,
-        encoding='mbcs',
-        index_col=0
-    )
+    with open(file) as f:
+        if "iVoc (V) HET" in f.read():
+            nrows = 11
+            metrics = [
+                "LuQY (%)",
+                "iVoc (V)",
+                "iVoc (V) HET",
+                "Bandgap (eV)",
+                "Jsc (mA/cm2)",
+            ]
+        else:
+            nrows = 10
+            metrics = ["LuQY (%)", "iVoc (V)", "Bandgap (eV)", "Jsc (mA/cm2)"]
+    df = pd.read_csv(file, sep="\t", nrows=nrows, encoding="mbcs", index_col=0)
+    df = df.loc[metrics]
     return df
 
 
 def import_metrics(db):
     metrics = ppdp.import_raw_data(db, import_metric)
-    metrics = metrics.loc[[
-        'LuQY (%)', 'iVoc (V)', 'Bandgap (eV)', 'Jsc (mA/cm2)']]
-    metrics = metrics.droplevel('date', axis=1)
-    if 'pixel' in metrics.columns.names:
-        metrics.columns.names = ['substrate', 'pixel', 'date']
+    metrics = metrics.droplevel("date", axis=1)
+    if "pixel" in metrics.columns.names:
+        metrics.columns.names = ["substrate", "pixel", "date"]
     else:
-        metrics.columns.names = ['substrate', 'date']
+        metrics.columns.names = ["substrate", "date"]
     return metrics.T
 
 
 # %%
 db = bt.init_thot(__file__)
 metrics = import_metrics(db)
-ppdp.pickle_w_markdown(metrics.droplevel('date'), 'PL_metrics', db)
+ppdp.pickle_w_markdown(metrics.droplevel("date"), "PL_metrics", db)
 metrics.head()
 
 # %%
@@ -58,28 +61,23 @@ df = ppdp.import_raw_data(db, import_file)
 df = pldp.df_to_energy(df)
 df = df * 10000  # convert from cm-2 to m-2
 df = df.rename(
-    columns={'flux [photons/(cm2 s nm)]': 'flux [photons/(m2 s eV)]'},
-    level='param'
+    columns={"flux [photons/(cm2 s nm)]": "flux [photons/(m2 s eV)]"}, level="param"
 )
 df.head()
 # %%
-plot_df = df.droplevel(['date'], axis=1)
+plot_df = df.droplevel(["date"], axis=1)
 # name = ['_'.join(col) for col in plot_df.columns.values]
 columns = list(plot_df.columns.names)
-columns.remove('param')
+columns.remove("param")
 plot_df = plot_df.stack(columns)
 plot_df = plot_df.reset_index(columns)
 plot_df.head()
 # %%
-line_dash = 'pixel' if 'pixel' in columns else None
-fig = px.line(
-    plot_df,
-    color='substrate',
-    line_dash=line_dash
-)
+line_dash = "pixel" if "pixel" in columns else None
+fig = px.line(plot_df, color="substrate", line_dash=line_dash)
 fig.update_layout(
-    xaxis_title='energy / eV',
-    yaxis_title="photon flux / m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>"
+    xaxis_title="energy / eV",
+    yaxis_title="photon flux / m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>",
 )
-bt.export_asset('PL_plot.html', db, bp.export_plotly, fig)
+bt.export_asset("PL_plot.html", db, bp.export_plotly, fig)
 # fig.show()
