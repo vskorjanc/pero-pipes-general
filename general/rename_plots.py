@@ -7,6 +7,8 @@ import re
 
 db = bt.init_thot(__file__)
 container = db.find_container({"type": "JV"})
+if "groups" not in container.metadata:
+    container = db.find_container({"type": "batch"})
 try:
     groups = container.metadata["groups"]
 except KeyError:
