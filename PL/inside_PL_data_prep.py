@@ -9,10 +9,14 @@ from plotly import express as px
 
 
 def import_file(file):
+    skiprows = 17
+    with open(file) as f:
+        if "iVoc (V) HET" in f.read():
+            skiprows = 18
     df = pd.read_csv(
         file,
         sep="\t",
-        skiprows=17,
+        skiprows=skiprows,
         encoding="mbcs",
         index_col=0,
         names=["wavelength/nm", "flux [photons/(cm2 s nm)]", "counts/s"],
