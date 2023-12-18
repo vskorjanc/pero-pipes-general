@@ -70,7 +70,8 @@ def define_property(data, level, property_values):
     samples = set(data.index.get_level_values(level))
     value_pairs = {}
     for nr, sample in enumerate(samples):
-        value_pairs[sample] = property_values[nr]
+        indx = nr % len(property_values)
+        value_pairs[sample] = property_values[indx]
     return value_pairs
 
 
