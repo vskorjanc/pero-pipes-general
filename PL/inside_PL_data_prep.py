@@ -35,7 +35,7 @@ def import_metric(file):
     ]
     df = pd.read_csv(file, sep="\t", nrows=11, encoding="unicode_escape", index_col=0)
     if "iVoc (V) HET" not in df.index.values:
-        metrics.pop("iVoc (V) HET")
+        metrics.remove("iVoc (V) HET")
     df = df.loc[metrics]
     return df
 
