@@ -36,6 +36,7 @@ plot_types = [
     "R-T_plot",
     "EQE_reflectance_plot_all",
     "tandem_JV_plot",
+    "tr-SPV_line_plot_620nm",
 ]
 for plot_type in plot_types:
     assets += bt.find_assets(db, search={"type": plot_type}, exit=False)
