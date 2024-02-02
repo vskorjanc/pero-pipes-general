@@ -1,18 +1,29 @@
 # %%
 from bix_analysis_libraries import thot as bt
+import pandas as pd
 import sys
 import re
 
 # %%
 
 db = bt.init_thot(__file__)
-container = db.find_container({"type": "JV"})
-if "groups" not in container.metadata:
-    container = db.find_container({"type": "batch"})
-try:
-    groups = container.metadata["groups"]
-except KeyError:
-    sys.exit()
+# %%
+asset = db.find_asset(search={"type": "substrate_meta"})
+if asset:
+    df = pd.read_pickle(asset.file)
+    df = df.loc[("general", "group")]
+    df = df.to_dict()
+    groups = {}
+    for substrate, group in df.items():
+        groups[group] = groups.get(group, []) + [substrate]
+else:
+    container = db.find_container({"type": "JV"})
+    if "groups" not in container.metadata:
+        container = db.find_container({"type": "batch"})
+    try:
+        groups = container.metadata["groups"]
+    except KeyError:
+        sys.exit()
 # %%
 assets = []
 plot_types = [

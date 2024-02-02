@@ -141,20 +141,34 @@ fig2.update_layout(
 # fig.show()
 # %%
 bt.export_asset("substrate_boxplot.html", db, bp.export_plotly, fig2)
+
+
 # %%
-if "groups" in container.metadata:
+def get_group(substrate, inverted_groups):
+    if substrate in inverted_groups:
+        return inverted_groups[substrate]
+    else:
+        return np.nan
+
+
+inverted_groups = None
+asset = db.find_asset(search={"type": "substrate_meta"})
+if asset:
+    df = pd.read_pickle(asset.file)
+    try:
+        df = df.loc[("general", "group")]
+        inverted_groups = df.to_dict()
+        ordering = list(df.unique())
+    except KeyError:
+        pass
+if ("groups" in container.metadata) and (not inverted_groups):
     groups = container.metadata["groups"]
     inverted_groups = invert_groups(groups)
     ordering = []
     for key, _ in groups.items():
         ordering.append(key)
 
-    def get_group(substrate, inverted_groups):
-        if substrate in inverted_groups:
-            return inverted_groups[substrate]
-        else:
-            return np.nan
-
+if inverted_groups:
     metrics["group"] = [
         get_group(substrate, inverted_groups)
         for substrate in metrics.index.get_level_values("substrate")
@@ -166,7 +180,6 @@ if "groups" in container.metadata:
 
 else:
     metrics["group"] = metrics.index.get_level_values("substrate")
-
 # %%
 metrics = metrics.set_index("group", append=True)
 if "ordering" in metrics.columns:
