@@ -2,10 +2,12 @@
 import pandas as pd
 import zipfile
 import xml.etree.ElementTree as ET
+from plotly import express as px
 
 from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.xrd import xrd_data_prep as bx
+from bix_analysis_libraries import plotly as bp
 
 # %%
 
@@ -43,6 +45,13 @@ def import_xrd(db):
 # %%
 db = bt.init_thot(__file__)
 df = import_xrd(db)
+# %%
+plot_df = df.droplevel(["date", "param"], axis=1)
+fig = px.line(plot_df)
+fig.update_layout(xaxis_title="2<i>&#920;</i> / &deg;", yaxis_title="intensity")
+fig.update_yaxes(showticklabels=False, showgrid=False, ticks="")
+bt.export_asset("non-normalized_XRD_plot.html", db, bp.export_plotly, fig)
+# %%
 df = df.apply(lambda x: x / x.max())
 df.head()
 # %%
