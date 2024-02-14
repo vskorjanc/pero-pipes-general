@@ -36,7 +36,10 @@ plot_types = [
     "R-T_plot",
     "EQE_reflectance_plot_all",
     "tandem_JV_plot",
-    "tr-SPV_line_plot_620nm",
+    "tr-SPV_line_plot",
+    "J_sc_intensity_plot",
+    "V_oc_intensity_plot",
+    "FF_intensity_plot",
 ]
 for plot_type in plot_types:
     assets += bt.find_assets(db, search={"type": plot_type}, exit=False)
@@ -51,7 +54,7 @@ for asset in assets:
                 substrates = list(substrates)
             for substrate in substrates:
                 html = re.sub(
-                    f', {{0,1}}"name": {{0,1}}"{substrate}(_.){{0,1}}"',
+                    f', {{0,1}}"name": {{0,1}}"{substrate}(_.){{0,1}}(, .){{0,1}}"',
                     f',"name": "{name}"',
                     html,
                 )
