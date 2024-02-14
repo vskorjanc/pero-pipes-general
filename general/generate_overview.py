@@ -39,6 +39,13 @@ pressure_temp_log_plot = create_iframe(
 )
 source_hist_log_plot = create_iframe("source-hist_log_plot", "evap_logs", batch_path)
 
+# In-situ PL
+in_situ_PL_heatmap_plot = create_iframe(
+    "in-situ_PL_heatmap_plot", "in-situ_PL", batch_path
+)
+in_situ_PL_spectral_plot = create_iframe(
+    "in-situ_PL_spectral_plot", "in-situ_PL", batch_path
+)
 
 # JV
 JV_scans_plot = create_iframe("JV-scans_plot", "JV", batch_path)
@@ -98,6 +105,14 @@ date: {formatted_date}
 {source_hist_log_plot}
 
 {pressure_temp_log_plot}
+
+### In-situ measurements
+
+#### PL
+
+{in_situ_PL_heatmap_plot}
+
+{in_situ_PL_spectral_plot}
 
 ## Measurements - single junction
 
