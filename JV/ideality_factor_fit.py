@@ -5,12 +5,10 @@ import numpy as np
 from plotly import express as px
 import scipy.constants as phys
 
-# from scipy.optimize import curve_fit
 from bix_analysis_libraries import plotly as bp
 from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 
-# %%
 # %%
 db = bt.init_thot(__file__)
 metrics = ppdp.import_formatted_data(db, {"type": "JV_metrics"})
@@ -33,37 +31,34 @@ metrics = metrics.droplevel("substrate")
 metrics.index.names = ["pixel", "substrate", "intensity"]
 metrics["intensity / sun"] = [i / 100 for i in intensities]
 metrics["ln(intensity)"] = [np.log(i) for i in intensities]
-metrics = metrics.sort_index()
+metrics = metrics.sort_index(level="substrate")
 metrics
 
 
 # %%
+def plot_param(param, metrics, db, log_y=False):
+    fig = px.line(
+        metrics,
+        x="intensity / sun",
+        y=param,
+        log_x=True,
+        log_y=log_y,
+        color=metrics.index.get_level_values("substrate"),
+        line_dash=metrics.index.get_level_values("pixel"),
+        markers=True,
+    )
 
-fig = px.line(
-    metrics,
-    x="intensity / sun",
-    y="V_oc",
-    log_x=True,
-    color=metrics.index.get_level_values("substrate"),
-    line_dash=metrics.index.get_level_values("pixel"),
-    markers=True,
-)
+    _ = bt.export_asset(f"{param}_intensity_plot.html", db, bp.export_plotly, fig)
+    return fig
 
-fig.show()
-_ = bt.export_asset("suns_Voc_plot.html", db, bp.export_plotly, fig)
+
+Voc_fig = plot_param("V_oc", metrics, db)
+Jsc_fig = plot_param("J_sc", metrics, db, log_y=True)
+FF_fig = plot_param("FF", metrics, db)
+
+
 # %%
-
-
-# def lin_reg(ln_I, n, b):
-# kb = phys.physical_constants["Boltzmann constant"][0]
-# e = phys.physical_constants["elementary charge"][0]
-# t = 298
-# return kb * t * n * ln_I / e + b
-
-
 def fit_lin(data):
-    # print(data)
-    # fit = curve_fit(lin_reg, data["ln(intensity)"], data["V_oc"])
     fit = linregress(data["ln(intensity)"], data["V_oc"])
     kb = phys.physical_constants["Boltzmann constant"][0]
     e = phys.physical_constants["elementary charge"][0]
