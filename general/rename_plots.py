@@ -37,6 +37,7 @@ plot_types = [
     "EQE_reflectance_plot_all",
     "tandem_JV_plot",
     "tr-SPV_line_plot",
+    "tr-PL_plot",
     "J_sc_intensity_plot",
     "V_oc_intensity_plot",
     "FF_intensity_plot",
