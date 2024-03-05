@@ -87,6 +87,7 @@ def plot_single_grouped_metric(data, visible, colors):
         pxls = datum.index.get_level_values("pixel")
         subs = datum.index.get_level_values("substrate")
         hovertext = [f"{sub}_{pxl}" for (sub, pxl) in zip(subs, pxls)]
+        color = None
         if colors is not None:
             color = colors.loc[group]
         box = go.Box(
