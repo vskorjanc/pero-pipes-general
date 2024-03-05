@@ -28,8 +28,12 @@ df = df.dropna(how="all")
 df.tail()
 # %%
 
-fig = px.line(df.loc[:1000], log_y=True)
-fig.update_layout(yaxis_title="counts / s")
+fig = px.line(df, log_y=True)
+fig.update_layout(
+    yaxis_title="counts / s",
+    yaxis_dtick=1,
+    legend={"title": None, "xanchor": "right", "x": 0.99},
+)
 bt.export_asset("tr-PL_plot.html", db, bp.export_plotly, fig)
 
 # %%

@@ -25,8 +25,5 @@ plot_df = plot_df.reset_index("wavelength / nm")
 range_y = bsf.set_axlims(df.values)
 
 fig = px.line(plot_df, log_x=True, animation_frame="wavelength / nm", range_y=range_y)
-fig.update_layout(
-    xaxis_title="time / s",
-    yaxis_title="voltage / V",
-)
+fig.update_layout(xaxis_title="time / s", yaxis_title="voltage / V", legend_title=None)
 _ = bt.export_asset("tr-SPV_line_plot.html", db, bp.export_plotly, fig)

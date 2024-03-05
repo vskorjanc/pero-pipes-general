@@ -71,6 +71,7 @@ plot_df = df.droplevel(["date", "param"], axis=1)
 plot_df = bsf.flatten_column_index(plot_df)
 plot_df.head()
 fig = px.line(plot_df)
+fig.update_layout(xaxis_title="wavelength / nm", yaxis_title="EQE", legend_title=None)
 bt.export_asset("EQE_plot.html", db, bp.export_plotly, fig)
 
 # %%

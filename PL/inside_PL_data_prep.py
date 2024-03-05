@@ -78,6 +78,7 @@ fig = px.line(plot_df, color="substrate", line_dash=line_dash)
 fig.update_layout(
     xaxis_title="energy / eV",
     yaxis_title="photon flux / m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>",
+    legend_title=None,
 )
 bt.export_asset("PL_plot.html", db, bp.export_plotly, fig)
 # fig.show()

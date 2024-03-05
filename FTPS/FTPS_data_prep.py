@@ -36,7 +36,7 @@ fig = px.line(
     log_y=True,
 )
 fig.update_yaxes(title="EQE / %")
-fig.update_layout(legend_title="substrate")
+fig.update_layout(legend_title=None)
 fig.update_layout(
     updatemenus=[
         dict(
