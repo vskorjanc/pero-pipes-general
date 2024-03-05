@@ -36,9 +36,29 @@ fig1.update_layout(
         "showgrid": False,
         "ticks": "",
     },
+    legend_title=None,
 )
-bt.export_asset("XRD_plot.html", db, bp.export_plotly, fig1)
-
+_ = bt.export_asset("XRD_plot.html", db, bp.export_plotly, fig1)
+# %%
+stacked_df = df.copy()
+spacing = (len(stacked_df.columns)) * 1.05
+print(spacing)
+for column in stacked_df:
+    stacked_df[column] += spacing
+    spacing -= 1.1
+stacked_fig = px.line(stacked_df)
+stacked_fig.update_layout(
+    xaxis_title="2<i>&#920;</i> / &deg;",
+    yaxis={
+        "title": "intensity",
+        "showticklabels": False,
+        "showgrid": False,
+        "ticks": "",
+    },
+    legend={"title": None, "xanchor": "right", "x": 0.99},
+)
+# stacked_fig.show()
+_ = bt.export_asset("XRD_stacked_plot.html", db, bp.export_plotly, stacked_fig)
 # %%
 
 
