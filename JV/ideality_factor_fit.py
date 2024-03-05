@@ -8,6 +8,7 @@ import scipy.constants as phys
 from bix_analysis_libraries import plotly as bp
 from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
+from bix_analysis_libraries import bix_standard_functions as bsf
 
 # %%
 db = bt.init_thot(__file__)
@@ -36,25 +37,45 @@ metrics
 
 
 # %%
-def plot_param(param, metrics, db, log_y=False):
+plot_df = metrics.copy()
+plot_df.columns.name = "param"
+plot_df = plot_df.unstack(["substrate", "pixel"])
+plot_df = plot_df.stack("param")
+plot_df = bsf.flatten_column_index(plot_df)
+plot_df.columns.name = "pixel"
+plot_df = plot_df.unstack("param")
+plot_df = plot_df.stack("pixel")
+
+
+# %%
+def plot_param(param, plot_df, db, log_y=False):
     fig = px.line(
-        metrics,
+        plot_df,
         x="intensity / sun",
         y=param,
         log_x=True,
         log_y=log_y,
-        color=metrics.index.get_level_values("substrate"),
-        line_dash=metrics.index.get_level_values("pixel"),
+        color=plot_df.index.get_level_values("pixel"),
+        # line_dash=plot_df.index.get_level_values("pixel"),
         markers=True,
     )
+    yaxis_names = {
+        "PCE": "PCE / %",
+        "J_sc": "<i>J</i><sub>SC</sub> / mA cm<sup>&#8722;2</sup>",
+        "V_oc": "<i>V</i><sub>OC</sub> / V",
+        "FF": "FF / %",
+        "R_ser": "<i>R</i><sub>ser</sub> / &#8486; cm<sup>2</sup>",
+        "R_par": "<i>R</i><sub>par</sub> / &#8486; cm<sup>2</sup>",
+    }
+    fig.update_layout(yaxis_title=yaxis_names[param], legend_title=None)
 
     _ = bt.export_asset(f"{param}_intensity_plot.html", db, bp.export_plotly, fig)
     return fig
 
 
-Voc_fig = plot_param("V_oc", metrics, db)
-Jsc_fig = plot_param("J_sc", metrics, db, log_y=True)
-FF_fig = plot_param("FF", metrics, db)
+Voc_fig = plot_param("V_oc", plot_df, db)
+Jsc_fig = plot_param("J_sc", plot_df, db, log_y=True)
+FF_fig = plot_param("FF", plot_df, db)
 
 
 # %%
