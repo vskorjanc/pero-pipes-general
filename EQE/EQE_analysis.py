@@ -15,10 +15,11 @@ from bric_analysis_libraries import standard_functions as std
 from bix_analysis_libraries import (
     bix_standard_functions as bsf,
     thot as bt,
-    plotly as bp
+    plotly as bp,
 )
 from bix_analysis_libraries.eqe import eqe_analysis as bea
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
+
 # %% [markdown]
 # ## Import measured data
 
@@ -26,8 +27,8 @@ from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 db = bt.init_thot(__file__)
 
 # %%
-df = ppdp.import_formatted_data(db, {'type': 'EQE_df'})
-df = df.droplevel('param', axis=1)
+df = ppdp.import_formatted_data(db, {"type": "EQE_df"})
+df = df.droplevel("param", axis=1)
 df.head()
 # %% [markdown]
 # ## Import AM1.5G spectrum
@@ -35,20 +36,20 @@ df.head()
 am = bt.import_global_asset(
     db,
     a_path=r"root:/../scripts/common/EQE/reference_spectra/AM1.5G.pkl",
-    dev_path=Path(r'reference_spectra/AM1.5G.pkl'),
-    a_type='AM1.5G',
-    import_function=pd.read_pickle
+    dev_path=Path(r"reference_spectra/AM1.5G.pkl"),
+    a_type="AM1.5G",
+    import_function=pd.read_pickle,
 )
 
 am.head()
 
 # %%
-int_df = bsf.interpolate(df, 0.001, 'cubic')
+int_df = bsf.interpolate(df, 0.001, "cubic")
 int_df.head()
 
 # %%
 bandgap = int_df.diff().idxmax()
-metrics = pd.DataFrame(bandgap, columns=['bandgap_EQE/eV'])
+metrics = pd.DataFrame(bandgap, columns=["bandgap_EQE/eV"])
 
 # %% [markdown]
 # ## Urbach tail fit
@@ -71,7 +72,7 @@ for name, data in int_df.groupby(int_df.columns, axis=1):
     fits.append(fit)
 u_df = pd.concat(u_df, axis=1)
 fits = pd.concat(fits)
-metrics['E_Urbach/eV'] = fits['e_u', 'value']
+metrics["E_Urbach/eV"] = fits["e_u", "value"]
 
 # %% [markdown]
 # ## Determining $V_{\mathrm{OC,rad}}$
@@ -98,20 +99,20 @@ metrics['E_Urbach/eV'] = fits['e_u', 'value']
 
 # %%
 j0_df = u_df.apply(bea.calc_bb)
-j0 = j0_df.apply(lambda x: simpson(x, x.index)) * phys.e
-metrics['J0/(A m-2)'] = j0
+j0 = j0_df.apply(lambda x: simpson(y=x, x=x.index)) * phys.e
+metrics["J0/(A m-2)"] = j0
 
 # %%
 jsc = bea.calc_Jsc(u_df, am)
-metrics['Jsc/(mA cm-2)'] = jsc
+metrics["Jsc/(mA cm-2)"] = jsc
 
 # %%
 ratio = jsc / j0
-metrics['Voc_rad/V'] = ratio.apply(bea.calc_voc_rad)
+metrics["Voc_rad/V"] = ratio.apply(bea.calc_voc_rad)
 metrics.head()
 
 # %%
-ppdp.pickle_w_markdown(metrics, 'EQE_metrics', db)
+ppdp.pickle_w_markdown(metrics, "EQE_metrics", db)
 
 # %% [markdown]
 # ## Plots
@@ -122,12 +123,16 @@ mpl = u_df.max()
 j0_plot = mpl * j0_df / j0_df.max()
 plot_df = pd.concat(
     [df, u_df, j0_plot],
-    keys=['measured', 'interpol. EQE w/ U. tail fit',
-          'J<sub>0</sub> curve', 'J<sub>SC</sub> curve'],
+    keys=[
+        "measured",
+        "interpol. EQE w/ U. tail fit",
+        "J<sub>0</sub> curve",
+        "J<sub>SC</sub> curve",
+    ],
     axis=0,
-    names=['type', 'energy']
+    names=["type", "energy"],
 )
-plot_df = plot_df.droplevel('date', axis=1)
+plot_df = plot_df.droplevel("date", axis=1)
 plot_df = bsf.flatten_column_index(plot_df)
 plot_df.head()
 
@@ -136,17 +141,17 @@ plot_df.head()
 
 def plot_analysis_curves(data, visible):
     traces = []
-    for tp, datum in data.groupby('type'):
+    for tp, datum in data.groupby("type"):
         scat = go.Scatter(
-            x=datum.index.get_level_values('energy'),
+            x=datum.index.get_level_values("energy"),
             y=datum,
-            mode='markers' if tp == 'measured' else 'lines',
+            mode="markers" if tp == "measured" else "lines",
             name=tp,
-            visible=visible
+            visible=visible,
         )
         traces.append(scat)
     return traces
 
 
 fig = bp.multilayer_plot(plot_df, plot_analysis_curves)
-bt.export_asset('EQE_analysis_plot.html', db, bp.export_plotly, fig)
+bt.export_asset("EQE_analysis_plot.html", db, bp.export_plotly, fig)
