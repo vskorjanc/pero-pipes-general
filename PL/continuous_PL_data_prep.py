@@ -85,7 +85,7 @@ bt.export_asset("continuous-PL_df.pkl", db, pd.to_pickle, df)
 bt.export_asset("continuous-PL_metrics_df.pkl", db, pd.to_pickle, metrics)
 
 # %%
-plot_df = df.stack("time/s")
+plot_df = df.stack("time/s", future_stack=True)
 plot_df = plot_df.droplevel("date", axis=1)
 # flatten in case there is pixel number
 plot_df = bsf.flatten_column_index(plot_df)

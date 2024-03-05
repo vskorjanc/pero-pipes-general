@@ -69,7 +69,7 @@ plot_df = df.droplevel(["date"], axis=1)
 # name = ['_'.join(col) for col in plot_df.columns.values]
 columns = list(plot_df.columns.names)
 columns.remove("param")
-plot_df = plot_df.stack(columns)
+plot_df = plot_df.stack(columns, future_stack=True)
 plot_df = plot_df.reset_index(columns)
 plot_df.head()
 # %%

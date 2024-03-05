@@ -19,7 +19,7 @@ df = ppdp.import_raw_data(db, import_file, pattern=r"(.*?)_(?=.*)", has_date=Fal
 df.columns = df.columns.set_names("wavelength / nm", level="param")
 df.head()
 # %%
-plot_df = df.stack("wavelength / nm")
+plot_df = df.stack("wavelength / nm", future_stack=True)
 plot_df = plot_df.reset_index("wavelength / nm")
 
 range_y = bsf.set_axlims(df.values)

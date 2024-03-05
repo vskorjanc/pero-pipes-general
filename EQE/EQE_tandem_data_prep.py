@@ -60,7 +60,7 @@ df.head()
 # %%
 _ = bt.export_asset("EQE_tandem_df.pkl", db, bsf.export_pickle, df)
 # %%
-plot_df = df.stack("subcell")
+plot_df = df.stack("subcell", future_stack=True)
 fig = bp.multilayer_plot(plot_df, plot_single)
 fig.update_layout(xaxis_title="wavelength / nm", yaxis_title="EQE")
 _ = bt.export_asset("EQE_tandem_plot.html", db, bp.export_plotly, fig)

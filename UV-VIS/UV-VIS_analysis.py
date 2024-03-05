@@ -11,7 +11,7 @@ db = bt.init_thot(__file__)
 # %%
 df = ppdp.import_formatted_data(db, {"type": "UV-VIS_df"})
 df.columns = df.columns.droplevel(["date"])
-df = df.stack("substrate")
+df = df.stack("substrate", future_stack=True)
 df.head()
 
 

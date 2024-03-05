@@ -30,7 +30,7 @@ def import_file(file):
 db = bt.init_thot(__file__)
 df = ppdp.import_raw_data(db, import_file, has_date=False, rename_axis=False)
 df.index.name = "scan rate / V s<sup>&#8722;1</sup>"
-df = df.stack(["param", "direction"])
+df = df.stack(["param", "direction"], future_stack=True)
 df = bsf.flatten_column_index(df)
 df = df.sort_index(level="direction")
 df = df.reset_index(["param", "direction"])

@@ -23,7 +23,7 @@ df = df.sort_index()
 df = df.iloc[300:]
 df = df.droplevel("date", axis=1)
 df = bsf.interpolate(df, 0.001, "cubic")
-df = df.stack("substrate")
+df = df.stack("substrate", future_stack=True)
 df["1-R"] = 1 - df["reflectance"]
 df["1-R-T"] = df["1-R"] - df["transmittance"]
 df.head()
@@ -33,7 +33,7 @@ fig.show()
 # %%
 diff_df = df.unstack("substrate")
 diff_df = bsf.apply_savgol(diff_df, window_length=241, deriv=1)
-diff_df = diff_df.stack("substrate")
+diff_df = diff_df.stack("substrate", future_stack=True)
 diff_fig = plot_df(diff_df)
 diff_fig.show()
 # %%

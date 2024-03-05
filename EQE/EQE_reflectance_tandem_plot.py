@@ -55,7 +55,7 @@ df = pd.concat(
 )
 df.head()
 # %%
-plot_df = df.stack("param")
+plot_df = df.stack("param", future_stack=True)
 fig = bp.multilayer_plot(plot_df, plot_single)
 fig.update_layout(
     xaxis_title="wavelength / nm",

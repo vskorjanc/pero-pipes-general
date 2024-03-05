@@ -40,11 +40,11 @@ metrics
 plot_df = metrics.copy()
 plot_df.columns.name = "param"
 plot_df = plot_df.unstack(["substrate", "pixel"])
-plot_df = plot_df.stack("param")
+plot_df = plot_df.stack("param", future_stack=True)
 plot_df = bsf.flatten_column_index(plot_df)
 plot_df.columns.name = "pixel"
 plot_df = plot_df.unstack("param")
-plot_df = plot_df.stack("pixel")
+plot_df = plot_df.stack("pixel", future_stack=True)
 
 
 # %%

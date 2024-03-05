@@ -47,7 +47,7 @@ db = bt.init_thot(__file__)
 # %%
 scans = ppdp.import_raw_data(db, import_scans, rename_axis=False, sort_columns=True)
 scans = remove_duplicates(scans.T).T
-scans = scans.stack(["date", "pixel", "direction"])
+scans = scans.stack(["date", "pixel", "direction"], future_stack=True)
 bt.export_asset("JV_scans.pkl", db, pd.to_pickle, scans)
 scans.head()
 # %%
