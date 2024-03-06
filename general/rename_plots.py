@@ -68,7 +68,7 @@ for asset in assets:
                 )
                 if colors:
                     html = re.sub(
-                        rf'"({substrate}(?:_.){{0,1}})(?:, .*?)","line":{{"color":"#.{{6}}"',
+                        rf'"({substrate}(?:_.){{0,1}})(?:, .*?){{0,1}}","line":{{"color":"#.{{6}}"',
                         rf'"\1","line":{{"color":"{color}"',
                         html,
                     )
