@@ -57,7 +57,10 @@ for asset in assets:
         html = f.read()
         for name, substrates in groups.items():
             if colors:
-                color = colors_df.loc[name]["color"]
+                try:
+                    color = colors_df.loc[name]["color"]
+                except KeyError:
+                    color = None
             if not isinstance(substrates, list):
                 substrates = list(substrates)
             for substrate in substrates:
@@ -66,7 +69,7 @@ for asset in assets:
                     f',"name": "{name}"',
                     html,
                 )
-                if colors:
+                if color:
                     html = re.sub(
                         rf'"({substrate}(?:_.){{0,1}})(?:, .*?){{0,1}}","line":{{"color":"#.{{6}}"',
                         rf'"\1","line":{{"color":"{color}"',
