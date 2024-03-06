@@ -6,12 +6,10 @@ from plotly import graph_objects as go
 from pathlib import Path
 import pandas as pd
 
-import numpy as np
 import scipy.constants as phys
 from scipy.integrate import simpson
 
 
-from bric_analysis_libraries import standard_functions as std
 from bix_analysis_libraries import (
     bix_standard_functions as bsf,
     thot as bt,
@@ -66,7 +64,8 @@ metrics = pd.DataFrame(bandgap, columns=["bandgap_EQE/eV"])
 # %%
 u_df = []
 fits = []
-for name, data in int_df.groupby(int_df.columns, axis=1):
+for name, data in int_df.T.groupby(int_df.columns):
+    data = data.copy().T
     (data, fit) = bea.fit_urbach_tail(data, fit_window=0.025, filter_window=100)
     u_df.append(data)
     fits.append(fit)
@@ -127,7 +126,7 @@ plot_df = pd.concat(
         "measured",
         "interpol. EQE w/ U. tail fit",
         "J<sub>0</sub> curve",
-        "J<sub>SC</sub> curve",
+        # "J<sub>SC</sub> curve",
     ],
     axis=0,
     names=["type", "energy"],
