@@ -14,7 +14,7 @@ def import_file(file):
         sep="\t",
         skiprows=8,
         names=["time/s", "voltage/V", "current_density/(mA cm-2)", "power/(mW cm-2)"],
-        encoding="mbcs",
+        encoding="ISO-8859-15",
     )
     df = df.dropna()
     df = df.drop_duplicates("time/s")
