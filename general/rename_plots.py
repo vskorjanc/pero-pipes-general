@@ -66,13 +66,18 @@ for asset in assets:
             for substrate in substrates:
                 html = re.sub(
                     f', {{0,1}}"name": {{0,1}}"{substrate}(_.){{0,1}}(, .*?){{0,1}}"',
-                    f',"name": "{name}"',
+                    f',"name":"{name}"',
                     html,
                 )
                 if color:
                     html = re.sub(
                         rf'"({substrate}(?:_.){{0,1}})(?:, .*?){{0,1}}","line":{{"color":"#.{{6}}"',
                         rf'"\1","line":{{"color":"{color}"',
+                        html,
+                    )
+                    html = re.sub(  # for MPP
+                        rf'"#.{{6}}"(,"dash":"(?:.+?)"){{0,1}}}},"mode":"markers","name":"{name}"',
+                        rf'"{color}"\1}},"mode":"markers","name":"{name}"',
                         html,
                     )
         f.seek(0)

@@ -75,7 +75,7 @@ def define_property(data, level, property_values):
     return value_pairs
 
 
-dashes = ["solid", "dot", "dash", "longdash", "dashdot", "longdashdot"]
+# dashes = ["solid", "dot", "dash", "longdash", "dashdot", "longdashdot"]
 
 
 def plot_MPP(data, visible):
@@ -84,14 +84,15 @@ def plot_MPP(data, visible):
     for sub, pxl_datum in data.groupby("substrate"):
         c = sub_c[sub]
         if "pixel" in data.index.names:
-            pxl_d = define_property(pxl_datum, "pixel", dashes)
+            # pxl_d = define_property(pxl_datum, "pixel", dashes)
             for pxl, datum in pxl_datum.groupby("pixel"):
-                d = pxl_d[pxl]
+                # d = pxl_d[pxl]
                 scat = go.Scatter(
                     x=datum.index.get_level_values("time/s"),
                     y=datum,
+                    mode="markers",
                     line_color=c,
-                    line_dash=d,
+                    # line_dash=d,
                     name=f"{sub}_{pxl}",
                     visible=visible,
                 )
@@ -100,6 +101,7 @@ def plot_MPP(data, visible):
             scat = go.Scatter(
                 x=pxl_datum.index.get_level_values("time/s"),
                 y=pxl_datum,
+                mode="markers",
                 line_color=c,
                 name=sub,
                 visible=visible,
@@ -110,7 +112,6 @@ def plot_MPP(data, visible):
 
 # %%
 fig = bp.multilayer_plot(plot_df, plot_MPP)
-fig.update_layout(
-    xaxis_title="time / s",
-)
+fig.update_layout(xaxis_title="time / s", legend={"itemsizing": "constant"})
+fig.update_traces(marker_size=2)
 bt.export_asset("MPP_plot.html", db, bp.export_plotly, fig)
