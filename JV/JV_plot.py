@@ -232,7 +232,7 @@ def add_facet(fig, df, df_column, column_names, colors, row, col, mirror_y=False
     )
     fig.update_yaxes(title_text=column_names[df_column], row=row, col=col)
     if mirror_y:
-        fig.update_yaxes(mirror="allticks", side="right", row=row, col=col)
+        fig.update_yaxes(side="right", row=row, col=col)
 
 
 add_facet(fig4, mean, "PCE", column_names, colors, 1, 1)
@@ -241,8 +241,6 @@ add_facet(fig4, mean, "FF", column_names, colors, 2, 1)
 add_facet(fig4, mean, "V_oc", column_names, colors, 2, 2, mirror_y=True)
 fig4.update_layout(showlegend=False)
 _ = bt.export_asset("faceted_grouped_boxplot.html", db, bp.export_plotly, fig4)
-
-
 # %%
 
 # def mask(x):
