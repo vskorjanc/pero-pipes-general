@@ -27,6 +27,12 @@ db = bt.init_thot(__file__)
 df = ppdp.import_raw_data(
     db, import_file, pattern=r"(.*?)_?([a-f]?)(?=(?:_\d{4}_\d{2}_\d{2}-\d{2}_\d{2}|\.))"
 )
+_ = bt.export_asset(
+    "FTPS_df.pkl",
+    db,
+    bsf.export_pickle,
+    df,
+)
 df.head()
 # %%
 plot_df = df.droplevel(["date", "param"], axis=1)

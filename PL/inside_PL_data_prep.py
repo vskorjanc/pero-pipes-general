@@ -2,6 +2,7 @@
 from bix_analysis_libraries import thot as bt, plotly as bp
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.pl import pl_data_prep as pldp
+from bix_analysis_libraries import bix_standard_functions as bsf
 import pandas as pd
 from plotly import express as px
 
@@ -62,6 +63,12 @@ df = pldp.df_to_energy(df)
 df = df * 10000  # convert from cm-2 to m-2
 df = df.rename(
     columns={"flux [photons/(cm2 s nm)]": "flux [photons/(m2 s eV)]"}, level="param"
+)
+_ = bt.export_asset(
+    "PL_df.pkl",
+    db,
+    bsf.export_pickle,
+    df,
 )
 df.head()
 # %%
