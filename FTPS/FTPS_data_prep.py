@@ -37,10 +37,7 @@ df.head()
 # %%
 plot_df = df.droplevel(["date", "param"], axis=1)
 plot_df = bsf.flatten_column_index(plot_df)
-fig = px.line(
-    plot_df,
-    log_y=True,
-)
+fig = px.line(plot_df, log_y=True, markers=True)
 fig.update_yaxes(title="EQE / %")
 fig.update_layout(legend_title=None)
 fig.update_layout(
@@ -65,4 +62,5 @@ fig.update_layout(
         ),
     ]
 )
+fig.update_traces(marker_size=4)
 bt.export_asset("FTPS_plot.html", db, bp.export_plotly, fig)

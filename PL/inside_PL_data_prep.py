@@ -81,11 +81,12 @@ plot_df = plot_df.reset_index(columns)
 plot_df.head()
 # %%
 line_dash = "pixel" if "pixel" in columns else None
-fig = px.line(plot_df, color="substrate", line_dash=line_dash)
+fig = px.line(plot_df, color="substrate", line_dash=line_dash, markers=True)
 fig.update_layout(
     xaxis_title="energy / eV",
     yaxis_title="photon flux / m<sup>-2</sup> s<sup>-1</sup> eV<sup>-1</sup>",
     legend_title=None,
 )
+fig.update_traces(marker_size=3)
 bt.export_asset("PL_plot.html", db, bp.export_plotly, fig)
-# fig.show()
+fig.show()
