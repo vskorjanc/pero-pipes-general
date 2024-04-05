@@ -1,5 +1,5 @@
 # %%
-# TODO convert the
+# TODO convert the HTML text to latex
 from bix_analysis_libraries import thot as bt
 from PIL import Image
 from matplotlib import pyplot as plt
