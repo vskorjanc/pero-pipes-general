@@ -2,6 +2,9 @@
 # # EQE analysis
 
 # %%
+import numpy as np
+from scipy.optimize import curve_fit
+
 from plotly import graph_objects as go
 from pathlib import Path
 import pandas as pd
@@ -26,7 +29,7 @@ db = bt.init_thot(__file__)
 
 # %%
 df = ppdp.import_formatted_data(db, {"type": "EQE_df"})
-df = df.droplevel("param", axis=1)
+df = df.droplevel(["param", "date"], axis=1)
 df.head()
 # %% [markdown]
 # ## Import AM1.5G spectrum
@@ -41,37 +44,77 @@ am = bt.import_global_asset(
 
 am.head()
 
-# %%
-int_df = bsf.interpolate(df, 0.001, "cubic")
-int_df.head()
-
-# %%
-bandgap = int_df.diff().idxmax()
-metrics = pd.DataFrame(bandgap, columns=["bandgap_EQE/eV"])
-
 # %% [markdown]
-# ## Urbach tail fit
-# To avoid background noise from influencing the $J_0,rad$ determination, the part of the spectrum up to the inflection point (in the log scale) is fitted with an Urbach tail:
-# $$
-# \alpha \left (E \right ) = \alpha_0 \exp{\left ( \frac{E - E_\mathrm{C}}{E_\mathrm{U}} \right )}
-# $$
-# $$
-# \ln{\alpha \left (E \right )} = \frac{1}{E_\mathrm{U}} E + \left ( \ln{\alpha_0} - \frac{E_\mathrm{C}}{E_U} \right )
-# $$
-# [Source](https://doi.org/10.1021/acs.jpclett.9b00138)
+# ## Sigmoidal curve fit
+# Due to robustness, the sigmoidal curve fit is preferred over the Urbach tail fit. The approach from the source was adjusted for calculation in the energy instead of wavelength domain.
 #
+# $$
+# \operatorname{EQE}(E)=\frac{A_{\mathrm{m}}}{1+\exp \left[2.63\left(E-E{\mathrm{g}}\right) / E{\mathrm{s}}\right]}
+# $$
+# 2.63 is a numeric factor that sets the steepness to be equal to the distance between the minimum and maximum of the second derivative of the sigmoidal curve.
+#
+# Source: https://doi.org/10.1002/aenm.202100022
 
 # %%
-u_df = []
-fits = []
-for name, data in int_df.T.groupby(int_df.columns):
-    data = data.copy().T
-    (data, fit) = bea.fit_urbach_tail(data, fit_window=0.025, filter_window=100)
-    u_df.append(data)
-    fits.append(fit)
-u_df = pd.concat(u_df, axis=1)
-fits = pd.concat(fits)
-metrics["E_Urbach/eV"] = fits["e_u", "value"]
+
+
+def sigmoid_function(x, amplitude, midpoint, steepness):
+    return amplitude / (1 + np.exp(-2.63 * (x - midpoint) / steepness))
+
+
+def fit_sigmoid(series, area_width):
+    interpol_series = bsf.interpolate(series, 0.001, "cubic")
+    # take inflection point as the midpoint guess
+    midpoint_guess = (
+        bsf.apply_savgol(interpol_series, window_length=200, deriv=1).idxmax().values[0]
+    )
+
+    amplitude_guess = series.max()
+    steepness_guess = 0.04
+
+    selected = series.loc[midpoint_guess - area_width : midpoint_guess + area_width]
+
+    x_data = selected.index.values
+    y_data = selected.values
+
+    p0 = [amplitude_guess, midpoint_guess, steepness_guess]
+
+    popt, _ = curve_fit(
+        sigmoid_function, x_data, y_data, p0=p0, bounds=([0, 1.5, 0], [1, 2.2, 0.1])
+    )
+    return popt, midpoint_guess
+
+
+# %%
+fit = pd.DataFrame(
+    index=pd.Index(["amplitude", "midpoint", "steepness"]), columns=df.columns
+)
+sigmoid_tail_df = df.copy()
+sigmoid_df = pd.DataFrame(
+    index=np.arange(df.index.min(), df.index.max(), 0.001), columns=df.columns
+)
+area_width = 0.1
+for column in df.columns:
+    popt, midpoint_guess = fit_sigmoid(df[column], area_width)
+    fit[column] = popt
+    # set the values below the inflection point to the fit values for J0 calculation
+    sigmoid_tail_df.loc[: popt[1], column] = [
+        sigmoid_function(x, *popt) for x in sigmoid_tail_df.loc[: popt[1]].index.values
+    ]
+    sigmoid_df.loc[
+        midpoint_guess - area_width : midpoint_guess + area_width, column
+    ] = [
+        sigmoid_function(x, *popt)
+        for x in sigmoid_df.loc[
+            midpoint_guess - area_width : midpoint_guess + area_width
+        ].index.values
+    ]
+
+sigmoid_tail_df = bsf.interpolate(sigmoid_tail_df, 0.001, "cubic")
+metrics = pd.DataFrame(fit.T[["midpoint", "steepness"]])
+metrics = metrics.rename({"midpoint": "bandgap/eV"}, axis=1)
+metrics
+
 
 # %% [markdown]
 # ## Determining $V_{\mathrm{OC,rad}}$
@@ -97,12 +140,12 @@ metrics["E_Urbach/eV"] = fits["e_u", "value"]
 # [Source](https://www.nature.com/articles/srep06071)
 
 # %%
-j0_df = u_df.apply(bea.calc_bb)
+j0_df = sigmoid_tail_df.apply(bea.calc_bb)
 j0 = j0_df.apply(lambda x: simpson(y=x, x=x.index)) * phys.e
 metrics["J0/(A m-2)"] = j0
 
 # %%
-jsc = bea.calc_Jsc(u_df, am)
+jsc = bea.calc_Jsc(sigmoid_tail_df, am)
 metrics["Jsc/(mA cm-2)"] = jsc
 
 # %%
@@ -117,21 +160,21 @@ ppdp.pickle_w_markdown(metrics, "EQE_metrics", db)
 # ## Plots
 
 # %%
-mpl = u_df.max()
+mpl = sigmoid_tail_df.max()
 # jsc_plot = mpl * jsc_df / jsc_df.max()
 j0_plot = mpl * j0_df / j0_df.max()
 plot_df = pd.concat(
-    [df, u_df, j0_plot],
+    [df, sigmoid_df, sigmoid_tail_df, j0_plot],
     keys=[
         "measured",
-        "interpol. EQE w/ U. tail fit",
+        "sigmoid fit",
+        "interpol. EQE w/ S. tail fit",
         "J<sub>0</sub> curve",
         # "J<sub>SC</sub> curve",
     ],
     axis=0,
     names=["type", "energy"],
 )
-plot_df = plot_df.droplevel("date", axis=1)
 plot_df = bsf.flatten_column_index(plot_df)
 plot_df.head()
 
@@ -145,6 +188,7 @@ def plot_analysis_curves(data, visible):
             x=datum.index.get_level_values("energy"),
             y=datum,
             mode="markers" if tp == "measured" else "lines",
+            line_dash="dot" if tp == "sigmoid fit" else None,
             name=tp,
             visible=visible,
         )
@@ -153,4 +197,5 @@ def plot_analysis_curves(data, visible):
 
 
 fig = bp.multilayer_plot(plot_df, plot_analysis_curves)
+fig.update_layout(legend=dict(yanchor="bottom", y=0.01, xanchor="right", x=0.99))
 bt.export_asset("EQE_analysis_plot.html", db, bp.export_plotly, fig)
