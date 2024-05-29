@@ -50,7 +50,7 @@ df = ppdp.import_raw_data(
     db,
     import_file,
     has_date=False,
-    pattern="ID (.+?)(?:-\d)? cell _Tandem (Top|Bottom).+",
+    pattern="ID (.+?)(?:-\d)? cell (?:\d{2})?_Tandem (Top|Bottom).+",
 )
 df = df.droplevel("param", axis=1)
 df = df.sort_index()
