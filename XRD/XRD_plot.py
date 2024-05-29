@@ -42,7 +42,6 @@ _ = bt.export_asset("XRD_plot.html", db, bp.export_plotly, fig1)
 # %%
 stacked_df = df.copy()
 spacing = (len(stacked_df.columns)) * 1.05
-print(spacing)
 for column in stacked_df:
     stacked_df[column] += spacing
     spacing -= 1.1
