@@ -86,3 +86,4 @@ for asset in assets:
     path = os.path.join("converted", new_name)
     plt.tight_layout()
     fig.savefig(path, bbox_inches="tight", pad_inches=0.0, dpi=250)
+    plt.close()
