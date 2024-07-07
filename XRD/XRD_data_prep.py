@@ -38,7 +38,6 @@ def import_xrd(db):
         df = ppdp.import_raw_data(db, import_xy)
     else:
         df = ppdp.import_raw_data(db, import_brml)
-        df = bx.subtract_background(df)
     return df
 
 
@@ -50,8 +49,32 @@ plot_df = df.droplevel(["date", "param"], axis=1)
 fig = px.line(plot_df)
 fig.update_layout(xaxis_title="2<i>&#920;</i> / &deg;", yaxis_title="intensity")
 fig.update_yaxes(showticklabels=False, showgrid=False, ticks="")
+fig.update_layout(
+    updatemenus=[
+        dict(
+            type="buttons",
+            direction="left",
+            buttons=list(
+                [
+                    dict(
+                        args=["yaxis.type", "linear"], label="linear", method="relayout"
+                    ),
+                    dict(args=["yaxis.type", "log"], label="log", method="relayout"),
+                ]
+            ),
+            pad={"r": 10, "t": 10},
+            showactive=True,
+            x=0.11,
+            xanchor="left",
+            y=1.1,
+            yanchor="top",
+        ),
+    ]
+)
+fig.show()
 bt.export_asset("non-normalized_XRD_plot.html", db, bp.export_plotly, fig)
 # %%
+df = bx.subtract_background(df)
 df = df.apply(lambda x: x / x.max())
 df.head()
 # %%
