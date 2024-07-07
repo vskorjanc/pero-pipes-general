@@ -89,4 +89,3 @@ fig.update_layout(
 )
 fig.update_traces(marker_size=3)
 bt.export_asset("PL_plot.html", db, bp.export_plotly, fig)
-fig.show()

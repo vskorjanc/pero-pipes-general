@@ -71,7 +71,6 @@ fig.update_layout(
         ),
     ]
 )
-fig.show()
 bt.export_asset("non-normalized_XRD_plot.html", db, bp.export_plotly, fig)
 # %%
 df = bx.subtract_background(df)
