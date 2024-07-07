@@ -48,7 +48,7 @@ df = import_xrd(db)
 plot_df = df.droplevel(["date", "param"], axis=1)
 fig = px.line(plot_df)
 fig.update_layout(xaxis_title="2<i>&#920;</i> / &deg;", yaxis_title="intensity")
-fig.update_yaxes(showticklabels=False, showgrid=False, ticks="")
+fig.update_yaxes(showgrid=False)
 fig.update_layout(
     updatemenus=[
         dict(
