@@ -34,6 +34,7 @@ plot_types = [
     "EQE_plot",
     "FTPS_plot",
     "XRD_plot",
+    "non-normalized_XRD_plot",
     "XRD_stacked_plot",
     "XRD_comparison_plot",
     "PL_plot",
