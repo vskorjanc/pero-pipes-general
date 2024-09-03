@@ -70,6 +70,8 @@ def fit_sigmoid(series, area_width):
     )
 
     amplitude_guess = series.max()
+    if amplitude_guess > 1:
+        amplitude_guess = 1
     steepness_guess = 0.04
 
     selected = series.loc[midpoint_guess - area_width : midpoint_guess + area_width]
