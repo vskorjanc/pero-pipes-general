@@ -21,6 +21,8 @@ markdown_file_name = f"{folder_name}.md"
 markdown_file_path = os.path.join(batch_path, markdown_file_name)
 markdown_file_path
 # %%
+files.sort()
+files.reverse()
 for file in files:
     # Read the markdown file
     with open(markdown_file_path, "r") as note:
