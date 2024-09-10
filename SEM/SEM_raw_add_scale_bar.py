@@ -78,6 +78,9 @@ for asset in assets:
     substrate = get_substrate_name(asset.file)
     label = groups[substrate]
     color = colors[label]
+    if "<sub>" in label:
+        label = label.replace("<sub>", "$_")
+        label = label.replace("</sub>", "$")
 
     fig = plot_img(asset.file)
 
