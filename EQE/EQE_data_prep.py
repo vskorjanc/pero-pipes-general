@@ -73,7 +73,7 @@ plot_df.head()
 fig = px.line(plot_df, markers=True)
 fig.update_traces(marker_size=4)
 fig.update_layout(xaxis_title="wavelength / nm", yaxis_title="EQE", legend_title=None)
-bt.export_asset("EQE_plot.html", db, bp.export_plotly, fig)
+bt.export_asset("EQE_plot.html", db, bp.export_plotly, fig, rename=True)
 
 # %%
 e_df = pdp.index_to_energy(df).sort_index()

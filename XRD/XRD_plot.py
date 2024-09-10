@@ -38,7 +38,7 @@ fig1.update_layout(
     },
     legend_title=None,
 )
-_ = bt.export_asset("XRD_plot.html", db, bp.export_plotly, fig1)
+_ = bt.export_asset("XRD_plot.html", db, bp.export_plotly, fig1, rename=True)
 # %%
 stacked_df = df.copy()
 spacing = (len(stacked_df.columns)) * 1.05
@@ -57,7 +57,9 @@ stacked_fig.update_layout(
     legend={"title": None, "xanchor": "right", "x": 0.99},
 )
 # stacked_fig.show()
-_ = bt.export_asset("XRD_stacked_plot.html", db, bp.export_plotly, stacked_fig)
+_ = bt.export_asset(
+    "XRD_stacked_plot.html", db, bp.export_plotly, stacked_fig, rename=True
+)
 # %%
 
 
