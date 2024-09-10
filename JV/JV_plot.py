@@ -8,6 +8,7 @@ from plotly.subplots import make_subplots
 from bix_analysis_libraries import thot as bt
 from bix_analysis_libraries import plotly as bp
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
+from bix_analysis_libraries import bix_standard_functions as bsf
 
 # %%
 db = bt.init_thot(__file__)
@@ -127,7 +128,12 @@ fig.update_layout(
 # fig.add_hline(y=0)
 # fig.add_vline(x=0)
 # fig.show()
-bt.export_asset("JV-scans_plot.html", db, bp.export_plotly, fig)
+bt.export_asset(
+    "JV-scans_plot.html",
+    db,
+    bp.export_plotly,
+    fig,
+)
 # %%
 metrics = ppdp.import_formatted_data(db, {"type": "raw_JV_metrics"})
 metrics = metrics.drop(["J_MPP", "V_MPP"], axis=1)
@@ -148,7 +154,12 @@ fig2.update_layout(
 )
 # fig.show()
 # %%
-bt.export_asset("substrate_boxplot.html", db, bp.export_plotly, fig2)
+bt.export_asset(
+    "substrate_boxplot.html",
+    db,
+    bp.export_plotly,
+    fig2,
+)
 
 
 # %%
@@ -190,7 +201,7 @@ if inverted_groups:
         for substrate in metrics.index.get_level_values("substrate")
     ]
     metrics["ordering"] = [
-        np.nan if pd.isnull(group) else ordering.index(group)
+        np.nan if pd.isnull(group) or group not in ordering else ordering.index(group)
         for group in metrics["group"]
     ]
 
@@ -198,28 +209,41 @@ else:
     metrics["group"] = metrics.index.get_level_values("substrate")
 # %%
 metrics = metrics.set_index("group", append=True)
-if "ordering" in metrics.columns:
-    metrics = metrics.set_index("ordering", append=True)
-    metrics = metrics.sort_index(level="ordering")
-    metrics = metrics.droplevel("ordering")
 metrics.head()
 # %%
-# calculate the mean of forward and backward scan
-mean = metrics.groupby(["substrate", "pixel", "group"], sort=False).aggregate("mean")
-# hide points with V_oc < 0.2 V
-mean = mean.where(lambda x: x["V_oc"] > 0.2).dropna()
+mean = metrics.droplevel("date")
 # manually remove pixels
 if "drop" in container.metadata:
     drop = container.metadata["drop"]
     drop = [tuple(d.split("_")) for d in drop]
     mean = mean.drop(index=drop)
+mean = mean.unstack(["pixel", "direction"])
+mean = mean.stack(0)
+mean = bsf.flatten_column_index(mean)
+mean.columns.name = "pixel"
+mean = mean.unstack(-1)
+mean = mean.stack("pixel")
+mean.head()
+# %%
+if "ordering" in mean.columns:
+    mean = mean.set_index("ordering", append=True)
+    mean = mean.sort_index(level="ordering")
+    mean = mean.droplevel("ordering")
+# %%
+# hide points with V_oc < 0.2 V
+mean = mean.where(lambda x: x["V_oc"] > 0.2).dropna()
 mean.head()
 # %%
 renamed_mean = rename_metrics(mean)
 colors = groups_meta["color"] if (groups_meta is not None) else None
 fig3 = bp.multilayer_plot(renamed_mean, plot_single_grouped_metric, colors=colors)
 fig3.update_layout(legend=dict(yanchor="top", y=1, xanchor="left", x=1.03, title=None))
-_ = bt.export_asset("grouped_boxplot.html", db, bp.export_plotly, fig3)
+_ = bt.export_asset(
+    "grouped_boxplot.html",
+    db,
+    bp.export_plotly,
+    fig3,
+)
 
 # %%
 
@@ -240,7 +264,12 @@ add_facet(fig4, mean, "J_sc", column_names, colors, 1, 2, mirror_y=True)
 add_facet(fig4, mean, "FF", column_names, colors, 2, 1)
 add_facet(fig4, mean, "V_oc", column_names, colors, 2, 2, mirror_y=True)
 fig4.update_layout(showlegend=False)
-_ = bt.export_asset("faceted_grouped_boxplot.html", db, bp.export_plotly, fig4)
+_ = bt.export_asset(
+    "faceted_grouped_boxplot.html",
+    db,
+    bp.export_plotly,
+    fig4,
+)
 # %%
 
 # def mask(x):
