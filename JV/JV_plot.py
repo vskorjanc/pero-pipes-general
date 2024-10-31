@@ -60,6 +60,7 @@ def plot_single_scan(data, visible, presets):
             line_dash=d,
             name=f"{pxl}\t{dr}",
             visible=visible,
+            connectgaps=True,
         )
         traces.append(scat)
     return traces
@@ -92,7 +93,7 @@ def plot_single_grouped_metric(data, visible, colors):
         if colors is not None:
             color = colors.loc[group]
         box = go.Box(
-            x=datum.index.get_level_values("group"),
+            x=str(datum.index.get_level_values("group")),
             y=datum,
             name=group,
             marker_color=color,
