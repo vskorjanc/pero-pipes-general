@@ -10,6 +10,30 @@ from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 
 
 # %%
+def import_mpp(file, substrate, pixel):
+    mpp = pd.read_csv(
+        file,
+        sep="\t",
+        skiprows=27,
+        index_col=0,
+        names=[
+            "time / s",
+            "voltage / V",
+            "current_density / (mA cm-2)",
+            "power / (mW cm-2)",
+        ],
+    )
+    # convert hours to seconds
+    mpp.index = mpp.index.map(lambda x: x * 3600)
+    mpp.columns.name = "param"
+    # reorder levels
+    mpp = mpp[["power / (mW cm-2)", "voltage / V", "current_density / (mA cm-2)"]]
+    mpp = bsf.add_levels(
+        mpp, [substrate, pixel, ""], ["substrate", "pixel", "date"], axis=1
+    )
+    return mpp
+
+
 def import_scan(file, substrate, pixel):
     scans = pd.read_csv(file, sep="\t", skiprows=35, usecols=range(4))
     columns = pd.MultiIndex.from_product(
@@ -53,9 +77,13 @@ def import_metrics(file, substrate, pixel):
 
 
 # %%
-regex_pattern = (
+jv_pattern = (
     r"0001_\d{4}-\d{2}-\d{2}_\d{2}.\d{2}.\d{2}_Stability \(JV\)_(.+)_\d{1,2}[ABC]\.txt"
 )
+mpp_pattern = (
+    r"0000_\d{4}-\d{2}-\d{2}_\d{2}.\d{2}.\d{2}_Stability \(Tracking\)_(.+)\.txt"
+)
+
 
 # %%
 db = bt.init_thot(__file__)
@@ -63,6 +91,7 @@ asset = bt.find_assets(db)[0]
 # %%
 zip_file = zipfile.ZipFile(asset.file)
 info_list = zip_file.infolist()
+mpps = []
 scans = []
 raw_metrics = []
 for item in info_list:
@@ -71,26 +100,39 @@ for item in info_list:
     parent_folder = os.path.basename(os.path.dirname(file_name))
     pixel = parent_folder[-1].lower()
 
-    match = re.match(regex_pattern, base_name)
-    if not match:
-        continue
-    substrate = match.groups()[0]
+    jv_match = re.match(jv_pattern, base_name)
+    mpp_match = re.match(mpp_pattern, base_name)
+    if mpp_match:
+        substrate = mpp_match.groups()[0]
+        mpp_data = zip_file.read(file_name)
+        mpp_data_string = str(mpp_data, "ISO-8859-15")
 
-    jv_data = zip_file.read(file_name)
-    jv_data_string = str(jv_data, "ISO-8859-15")
+        mpp_file = StringIO(mpp_data_string)
+        mpp = import_mpp(mpp_file, substrate, pixel)
+        mpps.append(mpp)
 
-    jv_file = StringIO(jv_data_string)
-    scan = import_scan(jv_file, substrate, pixel)
-    # remove duplicate index values
-    scan = scan.loc[~scan.index.duplicated(), :].copy()
-    scans.append(scan)
+    if jv_match:
+        substrate = jv_match.groups()[0]
 
-    jv_file = StringIO(jv_data_string)
-    raw_metric = import_metrics(jv_file, substrate, pixel)
-    raw_metrics.append(raw_metric)
+        jv_data = zip_file.read(file_name)
+        jv_data_string = str(jv_data, "ISO-8859-15")
+
+        jv_file = StringIO(jv_data_string)
+        scan = import_scan(jv_file, substrate, pixel)
+        # remove duplicate index values
+        scan = scan.loc[~scan.index.duplicated(), :].copy()
+        scans.append(scan)
+
+        jv_file = StringIO(jv_data_string)
+        raw_metric = import_metrics(jv_file, substrate, pixel)
+        raw_metrics.append(raw_metric)
 
 zip_file.close()
-
+mpps = pd.concat(mpps, axis=1)
+mpps = mpps.sort_index()
+bt.export_asset("MPP_df.pkl", db, pd.to_pickle, mpps)
+mpps.head()
+# %%
 scans = pd.concat(scans, axis=1)
 scans = scans.stack("pixel", future_stack=True)
 scans = bsf.add_level(scans, "", "date")
