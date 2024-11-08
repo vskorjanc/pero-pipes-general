@@ -177,15 +177,17 @@ bt.export_asset("MPP_plot.html", db, bp.export_plotly, mpp_plot, rename=True)
 # mpp_plot.show()
 
 # %%
-groups = pd.read_pickle("substrate_meta/substrate_meta.pkl")
-groups = groups.loc[("general", "group")]
-groups_meta = pd.read_pickle("groups_meta/groups_meta.pkl")
+from bix_analysis_libraries.pero_pipes import data_prep as ppdp
+
+substrate_meta = ppdp.import_formatted_data(db, {"type": "substrate_meta"})
+groups_meta = ppdp.import_formatted_data(db, {"type": "groups_meta"})
+groups_meta
+# %%
+groups = substrate_meta.loc[("general", "group")]
 ordering = list(groups_meta.index.values)
 ordering = sorted(ordering)
 groups = groups.to_dict()
 groups
-# %%
-groups_meta
 # %%
 calc_df = plot_df.copy()
 mad_df = pd.DataFrame()
@@ -212,6 +214,9 @@ mad_fig.update_traces(connectgaps=True)
 mad_fig.update_layout(
     xaxis_title="time / h",
     yaxis_title="PCE / %",
+    yaxis_range=[0, None],
+    xaxis_range=[0, None],
+    legend=dict(yanchor="bottom", y=0.01, xanchor="left", x=0.01, title=None),
 )
 # mad_fig.show()
 # %%
