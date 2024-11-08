@@ -163,8 +163,8 @@ elif max_time > 120:
     time = "time / min"
     plot_df.index.name = time
 
+plot_df = plot_df.stack(levels, future_stack=True)
 if len(plot_df.iloc[:, 0].dropna()) > 300:
-    plot_df = plot_df.stack(levels, future_stack=True)
     plot_df = downsample_df(plot_df, 100, time, levels)
 
 plot_df.head()
