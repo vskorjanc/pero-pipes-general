@@ -11,7 +11,12 @@ def import_file(file):
         file,
         sep="\t",
         skiprows=8,
-        names=["time / s", "voltage/V", "current_density/(mA cm-2)", "power/(mW cm-2)"],
+        names=[
+            "time / s",
+            "voltage / V",
+            "current_density / (mA cm-2)",
+            "power / (mW cm-2)",
+        ],
         encoding="ISO-8859-15",
     )
     df = df.dropna()
@@ -20,7 +25,7 @@ def import_file(file):
     for column in df.columns:
         df[column] = abs(df[column])
     df = df.set_index("time / s")
-    df = df[["power/(mW cm-2)", "voltage/V", "current_density/(mA cm-2)"]]
+    df = df[["power/(mW cm-2)", "voltage / V", "current_density / (mA cm-2)"]]
     return df
 
 
