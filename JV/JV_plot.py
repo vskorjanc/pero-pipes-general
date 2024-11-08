@@ -93,7 +93,7 @@ def plot_single_grouped_metric(data, visible, colors):
         if colors is not None:
             color = colors.loc[group]
         box = go.Box(
-            x=str(datum.index.get_level_values("group")),
+            x=datum.index.get_level_values("group"),
             y=datum,
             name=group,
             marker_color=color,
@@ -212,32 +212,32 @@ else:
 metrics = metrics.set_index("group", append=True)
 metrics.head()
 # %%
-mean = metrics.droplevel("date")
+metrics = metrics.droplevel("date")
 # manually remove pixels
 if "drop" in container.metadata:
     drop = container.metadata["drop"]
     drop = [tuple(d.split("_")) for d in drop]
-    mean = mean.drop(index=drop)
-mean = mean.unstack(["pixel", "direction"])
-mean = mean.stack(0)
-mean = bsf.flatten_column_index(mean)
-mean.columns.name = "pixel"
-mean = mean.unstack(-1)
-mean = mean.stack("pixel")
-mean.head()
+    metrics = metrics.drop(index=drop)
+metrics = metrics.unstack(["pixel", "direction"])
+metrics = metrics.stack(0)
+metrics = bsf.flatten_column_index(metrics)
+metrics.columns.name = "pixel"
+metrics = metrics.unstack(-1)
+metrics = metrics.stack("pixel")
+metrics.head()
 # %%
-if "ordering" in mean.columns:
-    mean = mean.set_index("ordering", append=True)
-    mean = mean.sort_index(level="ordering")
-    mean = mean.droplevel("ordering")
+if "ordering" in metrics.columns:
+    metrics = metrics.set_index("ordering", append=True)
+    metrics = metrics.sort_index(level="ordering")
+    metrics = metrics.droplevel("ordering")
 # %%
 # hide points with V_oc < 0.2 V
-mean = mean.where(lambda x: x["V_oc"] > 0.2).dropna()
-mean.head()
+metrics = metrics.where(lambda x: x["V_oc"] > 0.2).dropna()
+metrics.head()
 # %%
-renamed_mean = rename_metrics(mean)
+renamed_metrics = rename_metrics(metrics)
 colors = groups_meta["color"] if (groups_meta is not None) else None
-fig3 = bp.multilayer_plot(renamed_mean, plot_single_grouped_metric, colors=colors)
+fig3 = bp.multilayer_plot(renamed_metrics, plot_single_grouped_metric, colors=colors)
 fig3.update_layout(legend=dict(yanchor="top", y=1, xanchor="left", x=1.03, title=None))
 _ = bt.export_asset(
     "grouped_boxplot.html",
@@ -260,10 +260,10 @@ def add_facet(fig, df, df_column, column_names, colors, row, col, mirror_y=False
         fig.update_yaxes(side="right", row=row, col=col)
 
 
-add_facet(fig4, mean, "PCE", column_names, colors, 1, 1)
-add_facet(fig4, mean, "J_sc", column_names, colors, 1, 2, mirror_y=True)
-add_facet(fig4, mean, "FF", column_names, colors, 2, 1)
-add_facet(fig4, mean, "V_oc", column_names, colors, 2, 2, mirror_y=True)
+add_facet(fig4, metrics, "PCE", column_names, colors, 1, 1)
+add_facet(fig4, metrics, "J_sc", column_names, colors, 1, 2, mirror_y=True)
+add_facet(fig4, metrics, "FF", column_names, colors, 2, 1)
+add_facet(fig4, metrics, "V_oc", column_names, colors, 2, 2, mirror_y=True)
 fig4.update_layout(showlegend=False)
 _ = bt.export_asset(
     "faceted_grouped_boxplot.html",
