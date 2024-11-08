@@ -81,6 +81,8 @@ for item in info_list:
 
     jv_file = StringIO(jv_data_string)
     scan = import_scan(jv_file, substrate, pixel)
+    # remove duplicate index values
+    scan = scan.loc[~scan.index.duplicated(), :].copy()
     scans.append(scan)
 
     jv_file = StringIO(jv_data_string)
@@ -98,6 +100,7 @@ bt.export_asset("JV_scans.pkl", db, pd.to_pickle, scans)
 scans
 # %%
 raw_metrics = pd.concat(raw_metrics)
+raw_metrics["FF"] = raw_metrics["FF"].where(lambda x: x < 90)
 raw_metrics = raw_metrics.sort_index()
 ppdp.pickle_w_markdown(raw_metrics, "raw_JV_metrics", db, floatfmt=".2f")
 raw_metrics
