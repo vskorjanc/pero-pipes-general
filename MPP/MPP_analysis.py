@@ -74,6 +74,7 @@ def plot_MPP(data, visible):
                     line_color=c,
                     # line_dash=d,
                     name=f"{sub}_{pxl}",
+                    hovertext=f"{sub}_{pxl}",
                     visible=visible,
                 )
                 traces.append(scat)
@@ -84,6 +85,7 @@ def plot_MPP(data, visible):
                 # mode="markers",
                 line_color=c,
                 name=sub,
+                hovertext=sub,
                 visible=visible,
             )
             traces.append(scat)
