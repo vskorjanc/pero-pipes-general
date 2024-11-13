@@ -10,6 +10,21 @@ from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 
 
 # %%
+def remove_header(zip_file, file_name):
+    with zip_file.open(file_name) as f:
+        # Decode the file content to a string, then split into lines
+        lines = f.read().decode("ISO-8859-15").splitlines()
+        # Find the starting line with "## Data ##"
+        for line_number, line in enumerate(lines):
+            if "## Data ##" in line:
+                data_start_line = line_number + 1  # Start after "## Data ##"
+                break
+        # Join the lines starting from the data start line and load into StringIO for pandas
+        data = "\n".join(lines[data_start_line:])
+    file_wo_header = StringIO(data)
+    return file_wo_header
+
+
 def import_mpp(file, substrate, pixel):
     mpp = pd.read_csv(
         file,
@@ -35,7 +50,7 @@ def import_mpp(file, substrate, pixel):
 
 
 def import_scan(file, substrate, pixel):
-    scans = pd.read_csv(file, sep="\t", skiprows=35, usecols=range(4))
+    scans = pd.read_csv(file, sep="\t", skiprows=5, usecols=range(4))
     columns = pd.MultiIndex.from_product(
         [["for", "rev"], ["Voltage", substrate]], names=["direction", ""]
     )
@@ -52,7 +67,7 @@ def import_metrics(file, substrate, pixel):
     raw_metrics = pd.read_csv(
         file,
         sep="\t",
-        skiprows=32,
+        skiprows=2,
         names=[
             "V_oc",
             "J_sc",
@@ -104,20 +119,7 @@ for item in info_list:
     mpp_match = re.match(mpp_pattern, base_name)
     if mpp_match:
         substrate = mpp_match.groups()[0]
-        with zip_file.open(file_name) as f:
-
-            # Decode the file content to a string, then split into lines
-            lines = f.read().decode("ISO-8859-15").splitlines()
-
-            # Find the starting line with "## Data ##"
-            for line_number, line in enumerate(lines):
-                if "## Data ##" in line:
-                    data_start_line = line_number + 1  # Start after "## Data ##"
-                    break
-
-            # Join the lines starting from the data start line and load into StringIO for pandas
-            mpp_data = "\n".join(lines[data_start_line:])
-        mpp_file = StringIO(mpp_data)
+        mpp_file = remove_header(zip_file, file_name)
 
         mpp = import_mpp(mpp_file, substrate, pixel)
         mpps.append(mpp)
@@ -125,16 +127,14 @@ for item in info_list:
     if jv_match:
         substrate = jv_match.groups()[0]
 
-        jv_data = zip_file.read(file_name)
-        jv_data_string = str(jv_data, "ISO-8859-15")
+        jv_file = remove_header(zip_file, file_name)
 
-        jv_file = StringIO(jv_data_string)
         scan = import_scan(jv_file, substrate, pixel)
         # remove duplicate index values
         scan = scan.loc[~scan.index.duplicated(), :].copy()
         scans.append(scan)
 
-        jv_file = StringIO(jv_data_string)
+        jv_file = remove_header(zip_file, file_name)
         raw_metric = import_metrics(jv_file, substrate, pixel)
         raw_metrics.append(raw_metric)
 
