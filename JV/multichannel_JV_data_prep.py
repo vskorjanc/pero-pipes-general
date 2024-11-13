@@ -14,7 +14,7 @@ def import_mpp(file, substrate, pixel):
     mpp = pd.read_csv(
         file,
         sep="\t",
-        skiprows=27,
+        skiprows=1,
         index_col=0,
         names=[
             "time / s",
@@ -104,10 +104,21 @@ for item in info_list:
     mpp_match = re.match(mpp_pattern, base_name)
     if mpp_match:
         substrate = mpp_match.groups()[0]
-        mpp_data = zip_file.read(file_name)
-        mpp_data_string = str(mpp_data, "ISO-8859-15")
+        with zip_file.open(file_name) as f:
 
-        mpp_file = StringIO(mpp_data_string)
+            # Decode the file content to a string, then split into lines
+            lines = f.read().decode("ISO-8859-15").splitlines()
+
+            # Find the starting line with "## Data ##"
+            for line_number, line in enumerate(lines):
+                if "## Data ##" in line:
+                    data_start_line = line_number + 1  # Start after "## Data ##"
+                    break
+
+            # Join the lines starting from the data start line and load into StringIO for pandas
+            mpp_data = "\n".join(lines[data_start_line:])
+        mpp_file = StringIO(mpp_data)
+
         mpp = import_mpp(mpp_file, substrate, pixel)
         mpps.append(mpp)
 
