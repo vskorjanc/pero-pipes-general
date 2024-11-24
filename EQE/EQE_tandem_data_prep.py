@@ -52,6 +52,7 @@ df = ppdp.import_raw_data(
     import_file,
     has_date=False,
     pattern="ID (.+?)(?:-\d)? cell (?:\d{2})?_Tandem (Top|Bottom).+",
+    extension=".dat",
 )
 df = df.droplevel("param", axis=1)
 df = df.sort_index()

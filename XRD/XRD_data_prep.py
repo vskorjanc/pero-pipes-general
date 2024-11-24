@@ -37,7 +37,7 @@ def import_xrd(db):
     if ".xy" in assets[0].file:
         df = ppdp.import_raw_data(db, import_xy)
     else:
-        df = ppdp.import_raw_data(db, import_brml)
+        df = ppdp.import_raw_data(db, import_brml, extension=".brml")
     return df
 
 
