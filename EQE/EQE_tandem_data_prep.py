@@ -8,6 +8,7 @@ from bix_analysis_libraries import (
 )
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 import pandas as pd
+from bric_analysis_libraries.pl import pl_data_prep as pdp
 
 # %%
 
@@ -56,9 +57,13 @@ df = df.droplevel("param", axis=1)
 df = df.sort_index()
 df.columns = df.columns.rename({"pixel": "subcell"})
 df.head()
+# %%
+e_df = pdp.index_to_energy(df)
+e_df.index.name = "energy / eV"
+e_df.head()
 
 # %%
-_ = bt.export_asset("EQE_tandem_df.pkl", db, bsf.export_pickle, df)
+_ = bt.export_asset("EQE_tandem_df.pkl", db, bsf.export_pickle, e_df)
 # %%
 plot_df = df.stack("subcell", future_stack=True)
 fig = bp.multilayer_plot(plot_df, plot_single)
