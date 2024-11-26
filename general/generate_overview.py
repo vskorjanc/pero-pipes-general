@@ -111,7 +111,7 @@ date: {formatted_date}
 
 ### In-situ measurements
 
-[[MS-peroVap_log_plot/MS-peroVap_log_plot.html]]
+[[MS-peroVap_log_plot/MS-peroVap_log_plot.html|MS-peroVap log plot]]
 
 #### MS
 
