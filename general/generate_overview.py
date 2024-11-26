@@ -39,6 +39,9 @@ pressure_temp_log_plot = create_iframe(
 )
 source_hist_log_plot = create_iframe("source-hist_log_plot", "evap_logs", batch_path)
 
+# MS
+MS_plot = create_iframe("MS_plot", "MS", batch_path)
+
 # In-situ PL
 in_situ_PL_heatmap_plot = create_iframe(
     "in-situ_PL_heatmap_plot", "in-situ_PL", batch_path
@@ -96,7 +99,7 @@ date: {formatted_date}
 
 ### Logs
 
-![[evap_logs/source_metrics/source_metrics.md]]
+[[evap_logs/source_metrics/source_metrics.md|Source metrics]]
 
 ![[evap_logs/chamber_metrics/chamber_metrics.md]]
 
@@ -107,6 +110,12 @@ date: {formatted_date}
 {pressure_temp_log_plot}
 
 ### In-situ measurements
+
+[[MS-peroVap_log_plot/MS-peroVap_log_plot.html]]
+
+#### MS
+
+{MS_plot}
 
 #### PL
 
@@ -166,7 +175,9 @@ date: {formatted_date}
 
 {EQE_reflectance_plot_all}
 
-![[optical_tandem/EQE_tandem/EQE_tandem_metrics/EQE_tandem_metrics.md]]
+![[optical_tandem/tandem_EQE/EQE_tandem_metrics/EQE_tandem_metrics.md]]
+
+![[optical_tandem/tandem_EQE/EQE_metrics/EQE_metrics.md]]
 
 """
 # %%
