@@ -65,6 +65,8 @@ def import_metrics(file):
         pass
     df = df.drop("P_MPP [mW/cm²]:")
     df.index = ["J_sc", "V_oc", "FF", "PCE", "J_MPP", "V_MPP", "R_ser", "R_par"]
+    df = df.apply(lambda x: abs(x))
+    df.columns.name = "direction"
     return df
 
 
