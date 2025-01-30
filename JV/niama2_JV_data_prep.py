@@ -84,10 +84,9 @@ raw_metrics.head()
 # remove FF > 90 %
 raw_metrics["FF"] = raw_metrics["FF"].where(lambda x: x < 90)
 if "pixel" in raw_metrics.index.names:
-    print("yes")
     # make J_sc and J_MPP positive
-    raw_metrics["J_sc"] = -1 * raw_metrics["J_sc"]
-    raw_metrics["J_MPP"] = -1 * raw_metrics["J_MPP"]
+    raw_metrics["J_sc"] = abs(raw_metrics["J_sc"])
+    raw_metrics["J_MPP"] = abs(raw_metrics["J_MPP"])
 
     # multiply R_par with 100
     raw_metrics["R_par"] *= 1000
