@@ -1,6 +1,8 @@
 # %%
 from plotly import graph_objects as go
 import numpy as np
+import plotly.colors as pc
+from plotly import express as px
 import pandas as pd
 from bix_analysis_libraries import bix_standard_functions as bsf
 from bix_analysis_libraries import thot as bt
@@ -22,22 +24,31 @@ def read_file(file, skiprows=None, nrows=None):
     return df
 
 
-def get_delay_time(file):
-    delay_time = read_file(file, range(1, 8), 1)
-    return delay_time.loc["Delay Time (s)"].median()
+def get_spacing(file):
+    data = read_file(file, 0, 9)
+    delay_time = data.loc["Delay Time (s)"].median()
+    integration_time = data.loc["Integration Time (ms)"].median() / 1000
+    spacing = sum([delay_time, integration_time])
+    return spacing
 
 
-def append_delay_time(df, delay_time):
+def append_spacing(df, spacing):
     column_number = len(df.columns)
-    columns = np.linspace(0, delay_time * column_number - 1, column_number)
+
+    # columns = np.arange(column_number * spacing, spacing)
+    # print(columns)
+    columns = np.linspace(0, spacing * column_number - 1, column_number)
+
     df.columns = pd.Index(columns, name="time/s")
     return df
 
 
 def import_file(file):
+    if "_raw" in file:
+        return pd.DataFrame()
     df = read_file(file, range(1, 19))
-    delay_time = get_delay_time(file)
-    df = append_delay_time(df, delay_time)
+    spacing = get_spacing(file)
+    df = append_spacing(df, spacing)
     df.index.name = "wavelength/nm"
     # df.index = pd.Index(
     # df.index.values, name='wavelength/nm', dtype=np.float32)
@@ -45,9 +56,11 @@ def import_file(file):
 
 
 def import_metrics(file):
+    if "_raw" in file:
+        return pd.DataFrame()
     df = read_file(file, nrows=10)
-    delay_time = get_delay_time(file)
-    df = append_delay_time(df, delay_time)
+    spacing = get_spacing(file)
+    df = append_spacing(df, spacing)
     df.index.name = "metric"
     return df
 
@@ -67,15 +80,15 @@ def plot_single_metric(data, visible):
     return traces
 
 
-# %%
-
 db = bt.init_thot(__file__)
-df = ppdp.import_raw_data(db, import_file, sort_columns=False, rename_axis=False)
+df = ppdp.import_raw_data(
+    db, import_file, sort_columns=False, rename_axis=False, extension=".txt"
+)
 df.head()
 
 # %%
 metrics = ppdp.import_raw_data(
-    db, import_metrics, sort_columns=False, rename_axis=False
+    db, import_metrics, sort_columns=False, rename_axis=False, extension=".txt"
 )
 metrics = metrics.loc[["LuQY (%)", "iVoc (V)", "Bandgap (eV) "]]
 metrics = metrics.replace(0, np.NaN)
@@ -89,10 +102,142 @@ plot_df = df.stack("time/s", future_stack=True)
 plot_df = plot_df.droplevel("date", axis=1)
 # flatten in case there is pixel number
 plot_df = bsf.flatten_column_index(plot_df)
-fig = bp.heatmap_3D_plot(plot_df, xaxis="wavelength/nm")
-bt.export_asset("continuous-PL_plot.html", db, bp.export_plotly, fig)
+heatmap_fig = bp.heatmap_3D_plot(plot_df, xaxis="wavelength/nm")
+bt.export_asset("continuous-PL_heatmap_plot.html", db, bp.export_plotly, heatmap_fig)
+
+# %%
+
+colorscale = "viridis"
 
 
+def generate_colors_from_colorscale(colorscale, array):
+    """
+    Generates a dictionary mapping array items to colors from a continuous colorscale.
+
+    Parameters:
+    colorscale: str or list of tuple
+        The name of the colorscale (e.g., 'Viridis', 'Plasma') or a custom colorscale.
+    array: list
+        The array of items for which the colors are generated.
+
+    Returns:
+    dict
+        A dictionary where keys are array items and values are color values in hex format.
+    """
+    colorscale = "viridis"
+    colorscale = pc.get_colorscale(colorscale)
+
+    array_length = len(array)
+
+    # Generate evenly spaced values between 0 and 1
+    values = np.linspace(0, 1, array_length)
+
+    # Map the values to colors using the colorscale
+    colors = pc.sample_colorscale(colorscale, values, colortype="rgb")
+
+    # Create a dictionary mapping array items to colors
+    color_mapping = dict(zip(array, colors))
+
+    return color_mapping
+
+
+# %%
+
+
+def add_colorbar_to_figure(colorscale, visible, time_array):
+    """
+    Adds a colorbar to a Plotly figure based on the provided colorscale and array.
+
+    Parameters:
+    colorscale: str or list of tuple
+        The colorscale to use for the colorbar.
+    array: list
+        The array of items to represent along the colorbar.
+    figure: plotly.graph_objects.Figure
+        The Plotly figure to which the colorbar will be added.
+
+    Returns:
+    plotly.graph_objects.Figure
+        The updated figure with the colorbar added.
+    """
+    # array_length = len(array)
+    # values = np.linspace(0, 1, array_length)
+
+    # Add colorbar to the figure
+    trace = go.Scatter(
+        x=[None],  # Dummy data to create the colorbar
+        y=[None],
+        mode="markers",
+        visible=visible,
+        marker=dict(
+            color=[0, 1],
+            colorscale=colorscale,
+            showscale=True,
+            colorbar=dict(
+                title="Time / s",
+                tickvals=[0, 1],
+                ticktext=[time_array.min(), time_array.max()],
+            ),
+        ),
+        showlegend=False,
+        hoverinfo="none",
+    )
+
+    return trace
+
+
+def plot_single_spectrum(data, visible, color_mapping):
+    traces = []
+    time_array = data.index.get_level_values("time/s")
+    for time, datum in data.groupby("time/s"):
+        x = datum.index.get_level_values("wavelength/nm")
+        y = datum
+        scat = go.Scatter(
+            x=x,
+            y=y,
+            name=time,
+            marker_color=color_mapping[time],
+            visible=visible,
+            showlegend=False,
+        )
+        traces.append(scat)
+    cb_trace = add_colorbar_to_figure(colorscale, visible, time_array)
+    traces.append(cb_trace)
+
+    return traces
+
+
+time_array = plot_df.index.get_level_values("time/s").unique()
+color_mapping = generate_colors_from_colorscale(colorscale, time_array)
+spectral_fig = bp.multilayer_plot(
+    plot_df, plot_single_spectrum, color_mapping=color_mapping
+)
+# add_colorbar_to_figure('viridis', time_array, spectral_fig)
+spectral_fig.update_layout(xaxis_title="wavelength / nm", yaxis_title="intensity")
+bt.export_asset("continuous-PL_spectral_plot.html", db, bp.export_plotly, spectral_fig)
+# spectral_fig.show()
+
+
+# %%
+average_df = {}
+for wl, data in plot_df.groupby("wavelength/nm"):
+    average_df[wl] = data.iloc[-5:].mean()
+average_df = pd.concat(
+    average_df.values(), keys=average_df.keys(), names=["wavelength/nm", "substrate"]
+)
+average_df = average_df.unstack("substrate")
+average_df.head()
+
+# %%
+averaged_fig = px.line(average_df)
+averaged_fig.update_layout(yaxis_title="intensity")
+bt.export_asset(
+    "continuous-PL_averaged_plot.html",
+    db,
+    bp.export_plotly,
+    averaged_fig,
+    rename=True,
+)
 # %%
 plot_metrics = metrics.droplevel("date", axis=1).T
 metric_fig = bp.multilayer_plot(plot_metrics, plot_single_metric)
