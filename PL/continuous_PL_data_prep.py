@@ -28,7 +28,10 @@ def get_spacing(file):
     data = read_file(file, 0, 9)
     delay_time = data.loc["Delay Time (s)"].median()
     integration_time = data.loc["Integration Time (ms)"].median() / 1000
-    spacing = sum([delay_time, integration_time])
+    if delay_time >= integration_time:
+        spacing = delay_time
+    else:
+        spacing = integration_time
     return spacing
 
 
@@ -219,13 +222,15 @@ bt.export_asset("continuous-PL_spectral_plot.html", db, bp.export_plotly, spectr
 
 
 # %%
+points_to_average = 5
 average_df = {}
 for wl, data in plot_df.groupby("wavelength/nm"):
-    average_df[wl] = data.iloc[-5:].mean()
+    average_df[wl] = data.iloc[-points_to_average:].mean()
 average_df = pd.concat(
     average_df.values(), keys=average_df.keys(), names=["wavelength/nm", "substrate"]
 )
 average_df = average_df.unstack("substrate")
+bt.export_asset("continuous-PL_averaged_df.pkl", db, pd.to_pickle, metrics)
 average_df.head()
 
 # %%
@@ -238,6 +243,15 @@ bt.export_asset(
     averaged_fig,
     rename=True,
 )
+# %%
+average_metrics = {}
+for sub, data in metrics.T.groupby("substrate"):
+    average_metrics[sub] = data.iloc[-points_to_average:].median()
+average_metrics = pd.concat(average_metrics, axis=1, names=["substrate"]).T
+ppdp.pickle_w_markdown(
+    average_metrics, "continuous-PL_averaged_metrics", db, floatfmt=".2f"
+)
+average_metrics.head()
 # %%
 plot_metrics = metrics.droplevel("date", axis=1).T
 metric_fig = bp.multilayer_plot(plot_metrics, plot_single_metric)
