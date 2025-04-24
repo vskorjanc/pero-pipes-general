@@ -19,7 +19,7 @@ min_max = (idx.min(), idx.max())
 compounds = bt.import_global_asset(
     db=db,
     a_type="XRD_pattern_df",
-    a_path="../../../../scripts/common/XRD/patterns/patterns.pkl",
+    a_path="../../../../../scripts/common/XRD/patterns/patterns.pkl",
     dev_path="patterns/patterns.pkl",
 )
 compounds = compounds.droplevel(-1, axis=1)
