@@ -21,11 +21,11 @@ def import_file(file):
     )
     df = df.dropna()
     df = df.drop_duplicates("time / s")
-    df["time / s"] = pd.to_numeric(df["time /s"])
+    df["time / s"] = pd.to_numeric(df["time / s"])
     for column in df.columns:
         df[column] = abs(df[column])
     df = df.set_index("time / s")
-    df = df[["power/(mW cm-2)", "voltage / V", "current_density / (mA cm-2)"]]
+    df = df[["power / (mW cm-2)", "voltage / V", "current_density / (mA cm-2)"]]
     return df
 
 
