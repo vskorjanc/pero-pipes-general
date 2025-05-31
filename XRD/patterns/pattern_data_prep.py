@@ -10,7 +10,9 @@ import numpy as np
 
 def import_txt(file):
     # regex for 2 or more spaces necessary because of `d (A)` column
-    df = pd.read_csv(file, sep=r"\s{2,}", usecols=["2θ", "I"], engine="python")
+    df = pd.read_csv(
+        file, sep=r"(?<!d)\s+(?!\(Å\))", usecols=["2θ", "I"], engine="python"
+    )
     df = df.mask(df == "-1.#IND0").dropna()
     df = df.rename({"2θ": "2theta", "I": "intensity"}, axis=1)
     df = df.astype(np.float32)
@@ -30,7 +32,7 @@ def normalize_and_reindex(df):
     df = df.groupby("2theta").aggregate("sum")
     df = df.apply(lambda x: x / x.max())
     df = df.reindex(
-        np.linspace(5, 80, 5201), method="nearest", fill_value=0, tolerance=0.005
+        np.arange(5, 80, 0.005), method="nearest", fill_value=0, tolerance=0.005
     )
     return df
 
