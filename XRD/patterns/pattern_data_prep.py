@@ -30,7 +30,7 @@ def normalize_and_reindex(df):
     df = df.groupby("2theta").aggregate("sum")
     df = df.apply(lambda x: x / x.max())
     df = df.reindex(
-        np.linspace(8, 60, 5201), method="nearest", fill_value=0, tolerance=0.005
+        np.linspace(5, 80, 5201), method="nearest", fill_value=0, tolerance=0.005
     )
     return df
 
