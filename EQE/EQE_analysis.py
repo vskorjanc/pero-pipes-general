@@ -17,6 +17,7 @@ from bix_analysis_libraries import (
 )
 from bix_analysis_libraries.eqe import eqe_analysis as bea
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
+from bric_analysis_libraries.pl import pl_data_prep as pdp
 
 # %% [markdown]
 # ## Import measured data
@@ -30,6 +31,8 @@ try:
     df = df.droplevel(["param", "date"], axis=1)
 except SystemExit:
     df = ppdp.import_formatted_data(db, {"type": "EQE_tandem_df"})
+    df = pdp.index_to_energy(df)
+    df.index.name = "energy / eV"
     df = df.xs(
         "Top",
         axis=1,
