@@ -5,11 +5,14 @@ import pandas as pd
 from bix_analysis_libraries import thot as bt, bix_standard_functions as bsf
 from bix_analysis_libraries.pero_pipes import data_prep as ppdp
 from bix_analysis_libraries.eqe import eqe_analysis as bea
-from bric_analysis_libraries import standard_functions as std
+
+from bric_analysis_libraries.pl import pl_data_prep as pdp
 
 # %%
 db = bt.init_thot(__file__)
 df = ppdp.import_formatted_data(db, {"type": "EQE_tandem_df"})
+df = pdp.index_to_energy(df)
+df.index.name = "energy / eV"
 df.head()
 # %%
 am = bt.import_global_asset(
