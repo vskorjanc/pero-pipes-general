@@ -231,6 +231,7 @@ if "ordering" in metrics.columns:
     metrics = metrics.sort_index(level="ordering")
     metrics = metrics.droplevel("ordering")
 # %%
+_ = bt.export_asset("grouped_metrics.pkl", db, pd.to_pickle, metrics)
 # hide points with V_oc < 0.2 V
 metrics = metrics.where(lambda x: x["V_oc"] > 0.2).dropna()
 metrics.head()
