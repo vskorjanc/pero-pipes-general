@@ -94,7 +94,7 @@ metrics = ppdp.import_raw_data(
     db, import_metrics, sort_columns=False, rename_axis=False, extension=".txt"
 )
 metrics = metrics.loc[["LuQY (%)", "iVoc (V)", "Bandgap (eV) "]]
-metrics = metrics.replace(0, np.NaN)
+metrics = metrics.replace(0, np.nan)
 metrics.head()
 # %%
 bt.export_asset("continuous-PL_df.pkl", db, pd.to_pickle, df)
@@ -230,7 +230,7 @@ average_df = pd.concat(
     average_df.values(), keys=average_df.keys(), names=["wavelength/nm", "substrate"]
 )
 average_df = average_df.unstack("substrate")
-bt.export_asset("continuous-PL_averaged_df.pkl", db, pd.to_pickle, metrics)
+bt.export_asset("continuous-PL_averaged_df.pkl", db, pd.to_pickle, average_df)
 average_df.head()
 
 # %%
